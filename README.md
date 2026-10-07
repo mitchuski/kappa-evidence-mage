@@ -33,6 +33,7 @@ Source proposal: `~/hashsmash_mage/notes/2026-10-07_kappa_evidence_ledger_resear
 | `mint_sig_h2.py` | the sig_mage adapter: H2 gate rows, images, patch report -> `out/sig_h2_b96b3ca/` |
 | `verify_bundle.py` | lane-neutral verifier for any bundle (recomputes summary/1 and check/1 facts by rule name; checks images against their layout hashes) |
 | `input/sig_h2_b96b3ca/` | read-only snapshot from the sig_mage lead, SHA256SUMS checked |
+| `PROVERB.md` | the prophecy proverb, its kappa, and the rule for where it goes |
 | `2026-10-07_note_to_uor_collaborator.md` | send-ready note to the UOR contact (the First Person sends) |
 | `make_test_vector.py` / `test_vector.json` | the fixed cross-implementation vector for P1 |
 | `P1_RUST_CHECK.md` | how to run the Rust side of that check (scratch crate; the clone stays untouched) |

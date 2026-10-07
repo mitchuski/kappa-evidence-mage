@@ -64,6 +64,10 @@ store, re-ingest, identical root), then the harness phases emitting their own ka
 edges, then signed assertions for co-author credit under an anchor. Not asking you to carry
 any of it; pointing at what you think matters is enough.
 
+The proverb I am minting under, since your registry is what makes it literal: the decimal
+travels; the root stays. Whoever carries the measure carries the mint, and the mint remembers
+the hand that struck it.
+
 ---
 
 Attachments to send with it, if the channel allows files: `test_vector.json` and
