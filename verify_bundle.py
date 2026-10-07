@@ -18,7 +18,7 @@ import sys
 
 import kappa as K
 
-PRIVATE = re.compile(r"(?i)(c:\\|/c/users|/home/|/root/|mitch|desktop-|\\\\wsl|@[a-z0-9.-]+\.(local|lan))")
+PRIVATE = re.compile(r"(?i)([a-z]:[\\/]users[\\/]|/c/users|/home/|/root/|desktop-|\\\\wsl|@[a-z0-9.-]+\.(local|lan))")
 
 
 # -- rules: how a check/1 or summary/1 is recomputed from its ledger's rows -------------
@@ -44,7 +44,12 @@ def rule_all_ok(rows):
             "exits": sorted({str(r.get("exit", r.get("expand_exit"))) for r in rs})}
 
 
-RULES = {"sig-golf/h2-honest/1": rule_h2_honest, "sig-golf/all-ok/1": rule_all_ok}
+def rule_harness_tally(rows):
+    st = [r[2] for r in rows]
+    return {"n": len(st), "validated": sum(1 for s in st if s == "VALIDATED"), "statuses": sorted(set(st))}
+
+
+RULES = {"sig-golf/h2-honest/1": rule_h2_honest, "sig-golf/all-ok/1": rule_all_ok, "harness/run-tally/1": rule_harness_tally}
 
 
 def main(bundle: str) -> int:

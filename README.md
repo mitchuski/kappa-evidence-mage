@@ -94,6 +94,22 @@ eight H2 program images as blobs with `derived-from` edges H2 -> base image + pa
   before a build. The second is what the images check already does for hashes and sizes;
   generalising it to the other constants is the next adapter step.
 
+## Harness integration (2026-10-07, evening)
+
+The agentprivacy dual-agent harness (`~/dual-agent-harness`, uncommitted there; the First Person
+commits) now carries the registry axis natively: `tools/dcbor.mjs` is an independent JS
+implementation of this encoder, `tools/kappa_evidence.mjs` mints a run's record into the same
+bundle layout (`mint | verify | root`, optional `--sign` with an ephemeral ed25519 key whose
+registry anchor becomes the edges' asserter), and `tools/check.mjs` runs the 61-check test and
+verifies every minted bundle on each gate run. The two encoders agree on the fixed struct vector
+(`test_vector.json`), and `verify_bundle.py` here accepts the JS-minted harness bundle
+(rule `harness/run-tally/1`). That is a two-implementation agreement, not the P1 cargo check.
+Also in the harness: an `Evidence root:` section in the chronicle template, a
+`seats/constants-refuter.md` seat card, and a HOLONS.md section on the two axes.
+
+Leak-scan pattern aligned across both implementations: user paths (drive-letter and POSIX),
+home dirs and host names; not bare names, since public handles appear legitimately in content.
+
 ## Boundaries
 
 - Windows only, no WSL (the r32 blind route search owns it). No cargo on this side.

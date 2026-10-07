@@ -14,7 +14,7 @@ from datetime import date
 import kappa as K
 
 NS = "agentprivacy-evidence"
-PRIVATE = re.compile(r"(?i)(c:\\|/c/users|/home/|/root/|mitch|desktop-|\\\\wsl|@[a-z0-9.-]+\.(local|lan))")
+PRIVATE = re.compile(r"(?i)([a-z]:[\\/]users[\\/]|/c/users|/home/|/root/|desktop-|\\\\wsl|@[a-z0-9.-]+\.(local|lan))")
 
 
 def redact(s: str) -> str:
