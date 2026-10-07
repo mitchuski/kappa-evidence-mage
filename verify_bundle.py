@@ -49,7 +49,7 @@ def rule_harness_tally(rows):
     return {"n": len(st), "validated": sum(1 for s in st if s == "VALIDATED"), "statuses": sorted(set(st))}
 
 
-RULES = {"sig-golf/h2-honest/1": rule_h2_honest, "sig-golf/all-ok/1": rule_all_ok, "harness/run-tally/1": rule_harness_tally}
+RULES = {"sig-golf/h2-honest/1": rule_h2_honest, "sig-golf/all-ok/1": rule_all_ok, "harness/run-tally/1": rule_harness_tally, "rows/count/1": lambda rows: {"n": len(rows)}}
 
 
 def main(bundle: str) -> int:
