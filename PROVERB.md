@@ -12,6 +12,8 @@ carries an `Evidence root: sha256:...` line, after the P1 cargo check has flippe
 The note quotes the proverb and its kappa beside the root, so the proverb is itself an object
 the reader can re-derive. Until then it stands here and in the note to the UOR contact.
 
+2026-10-07: the First Person placed this proverb's kappa on agentprivacy.org/harness/record/ (the kappa only, not the sentence), ahead of the first submission note; the note still carries the proverb and its kappa beside the root when it lands.
+
 ## What it foretells
 
 - the decimal travels: a measured number will be copied into other packages, with or
