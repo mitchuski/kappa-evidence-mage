@@ -1,0 +1,5 @@
+out/
+input/
+__pycache__/
+*.pyc
+p1_check/target/
