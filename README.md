@@ -110,12 +110,42 @@ Also in the harness: an `Evidence root:` section in the chronicle template, a
 Leak-scan pattern aligned across both implementations: user paths (drive-letter and POSIX),
 home dirs and host names; not bare names, since public handles appear legitimately in content.
 
+## What changed in how kappa is used (2026-10-08), and what this mage now carries
+
+- **A twin implementation.** `tools/dcbor.mjs` in the harness is an independent JS encoder;
+  the two agree on the fixed struct vector (`test_vector.json`, embedded in the harness test).
+  Two encoders agreeing is not the P1 cargo check, but it means a byte-level mistake in one
+  would have shown as a disagreement, and none did.
+- **More shapes.** `SCHEMA.md` is the registry: record/1 (generic rows), check/1 with a rule
+  table, images/1, the three harness objects, sources/1 (prose behind a kappa), transform/1 (a
+  reader bound to its evidence root). A new shape is written there before a bundle uses it.
+- **More minters, elsewhere.** The harness mints runs (`tools/kappa_evidence.mjs`, 34 runs
+  minted); the demos repo mints sources, rows and the demos root (`tools/mint_sources.mjs`,
+  `mint_rows.mjs`, `mint_demos.mjs`, `pair.mjs`). This mage keeps the Python mirror, the two
+  lane adapters (r32, sig H2), the schema registry and the verifier that reads every bundle
+  the others produce.
+- **Verifier parity.** `verify_bundle.py` now also checks harness-gap seeds against their canon
+  blob kappa and images against their layout hashes, and reports a root signature when present
+  (ed25519 itself is checked by the harness verifier only; no third-party packages here).
+- **Clone safety, F-E5 and F-E6.** A kappa'd blob must survive `git clone`: bundle directories are
+  marked `-text` in `.gitattributes`, and text is hashed as git stores it (LF, redacted).
+  Without that, a Windows checkout with newline conversion rewrites every blob and every
+  verify fails; found and fixed in both public repos. Separately, the harness has a
+  177-character tracked path, so Windows clones need `core.longpaths`.
+- **The pair is an object.** transform/1 binds a reader's kappa to the evidence root it was
+  generated from and the generator's kappa; sixteen pairs sit under the demos root
+  `sha256:ad4e115f...`. The transformation creates the pair, as the First Person put it.
+
+Public homes: this mage at github.com/mitchuski/kappa-evidence-mage; the harness tools at
+github.com/mitchuski/agentprivacy-harness; the readers and pairs at
+github.com/mitchuski/agentprivacy-harness-demos. `out/` and `input/` stay local here.
+
 ## Boundaries
 
 - Windows only, no WSL (the r32 blind route search owns it). No cargo on this side.
 - The vendored clone `~/kappa-registry-main` is never edited. The dcbor derive source was
   cloned into the session scratchpad for reading only.
-- Nothing pushed. uor_kappa_mage was level with origin/main before this directory was added.
+- Pushed 2026-10-08 (public). uor_kappa_mage still holds the uncommitted links to this sibling.
 - Private paths and hosts are scanned out of every object; the inputs were clean already.
 - No asserter key exists at P0: edges carry a placeholder asserter and are offline records.
 

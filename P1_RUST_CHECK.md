@@ -58,7 +58,9 @@ fn main() {
 }
 ```
 
-Run `cargo run --release` and diff each line against `python make_test_vector.py`.
+Run `cargo run --release` and diff each line against `python make_test_vector.py` AND against
+`node tools/kappa_evidence.test.mjs` in the harness (the JS twin embeds the same vector): all
+three must agree. If Rust disagrees with both, the mirrors are wrong; if with one, that one is.
 Also run the crate's own tests once: `cargo test -p kappa-core kappa` (read-only on the clone;
 the target dir can be redirected with `CARGO_TARGET_DIR` to keep the clone untouched).
 

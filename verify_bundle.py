@@ -86,6 +86,10 @@ def main(bundle: str) -> int:
         fail("root kappa is not a run-root object in the bundle"); return 1
     print("root", root_k, "| status:", root[5], "| minted", root[2], "| lane", root[1])
     names = {n: k for n, k in root[3]}
+    with open(os.path.join(bundle, "root.json"), encoding="utf-8") as f:
+        meta = json.load(f)
+    if meta.get("signature"):
+        print("root signature present by", meta["signature"].get("by_did"), "(ed25519 not checked here; see tools/kappa_evidence.mjs verify)")
     out = {}
     for e in edges.values():
         out.setdefault((e[0], K.RELATION_NAME[e[2]]), []).append(e[1])
@@ -143,6 +147,18 @@ def main(bundle: str) -> int:
                 fail(f"{label}: recomputed {rec} != stored {stored}")
             else:
                 print(f"recomputed {label}: {json.dumps(rec)}")
+    for k, v in objects.items():
+        if kind(v) == "harness-gap":
+            prop = objects.get(v[1]); canon_k = prop[6] if prop else None
+            if not prop or canon_k not in blobs:
+                fail(f"gap {k}: its proposal's canon blob is missing"); continue
+            if K.split_kappa(canon_k)[1] != v[4]:
+                fail(f"gap {k}: hProposal {v[4][:12]} != canon blob kappa {K.split_kappa(canon_k)[1][:12]}")
+            if v[1] not in out.get((k, "derived-from"), []):
+                fail(f"gap {k}: no derived-from edge to its proposal")
+    gaps = sum(1 for v in objects.values() if kind(v) == "harness-gap")
+    if gaps:
+        print(f"{gaps} gap seed(s) derive from their proposal canon's kappa")
     for k, v in objects.items():
         if kind(v) == "images":
             for side, progs in v[2].items():
