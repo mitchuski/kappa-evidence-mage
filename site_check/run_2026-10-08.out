@@ -1,0 +1,36 @@
+text-file /mnt/c/Users/mitch/kappa_evidence_mage/_proverb_sentence.txt: 130 chars -> sha256:28072b32adc335a21cafc96a3a42da3a5ca13a3b9130e44ddbb8f90ae37e0794
+bundle fleet-chain
+  fleet-chain/objects: 163 files
+  fleet-chain/edges: 242 files
+  fleet-chain: status "kappa-verified at 2af8656" · root sha256:d91f4f6b4f9c5e88 · merkle 7b1677f0f14e455d over 397 leaves
+  fleet-chain: 78 links walked, 163 objects, 242 edges
+bundle work-chain
+  work-chain/objects: 91 files
+  work-chain/edges: 131 files
+  work-chain: status "kappa-verified at 2af8656" · root sha256:eaaf84c7389fd4c3 · merkle d86834531d2e1f9b over 212 leaves
+  work-chain: 41 links walked, 91 objects, 131 edges
+bundle fund-chain
+  fund-chain/objects: 47 files
+  fund-chain/edges: 68 files
+  fund-chain: status "kappa-verified at 2af8656" · root sha256:aa0d8250817e03b9 · merkle 72904af773296ce4 over 111 leaves
+  fund-chain: 22 links walked, 47 objects, 68 edges
+bundle research-chain
+  research-chain/objects: 68 files
+  research-chain/edges: 99 files
+  research-chain: status "kappa-verified at 2af8656" · root sha256:0d5862bf520d887f · merkle abe5d1f1d03fedac over 162 leaves
+  research-chain: 32 links walked, 68 objects, 99 edges
+bundle /mnt/c/Users/mitch/kappa_evidence_mage/out/r32
+  r32/objects: 68 files
+  r32/edges: 201 files
+  r32: status "kappa-verified at 2af8656" · root sha256:0a36d530b51f20e7 · merkle fef01ed949c5cfad over 267 leaves
+  r32: 0 links walked, 68 objects, 201 edges
+bundle /mnt/c/Users/mitch/kappa_evidence_mage/out/sig_h2_b96b3ca
+  sig_h2_b96b3ca/objects: 67 files
+  sig_h2_b96b3ca/edges: 139 files
+  sig_h2_b96b3ca: status "kappa-verified at 2af8656" · root sha256:9fa4e25499bc50ba · merkle 20a1ecd7c44241b5 over 212 leaves
+  sig_h2_b96b3ca: 0 links walked, 67 objects, 139 edges
+  anchor sha256:28072b32adc335a2 — proverb: kappa_from_value over the sentence, re-derived by this tool (--text-file)
+  anchor sha256:b223b68bceeb3ef7 — harness census index: harness kappa law, re-derived by soul_mage gate G2
+  anchor sha256:f1d4a621724097d0 — census index: harness kappa law (sha256 over canonical JSON), re-derived by soul_mage gate G2
+site: 188 addresses · 185 chain members re-derived here · 3 cited anchors verified separately · 0 missing
+site_check: 4213 checks, 0 failures — PASS

@@ -166,6 +166,10 @@ def main():
     root_v = {0: f"{NS}/run-root/1", 1: LANE, 2: MINTED_ON,
               3: [[n, k] for n, k in sorted(names.items())], 4: mroot, 5: K.STATUS,
               6: ASSERTER, 7: K.UPSTREAM}
+    # blake3 axis (KappaLabel::blake3) sealed in the root, as bundle.py does; sha256 stays the identity
+    b3 = {k: K.kappa_blake3_from_bytes(b) for k, b in blobs.items()}
+    b3.update({k: K.kappa_blake3_from_value(v) for k, v in list(objects.items()) + list(edge_k.items())})
+    root_v[8] = {"blake3_axis": dict(sorted(b3.items()))}
     root_k = K.kappa_from_value(root_v)
     objects[root_k] = root_v
     root_edges = [K.edge_record(root_k, names[n], "composed-of", ASSERTER)
@@ -184,7 +188,7 @@ def main():
     for k, e in edge_k.items():
         with open(os.path.join(OUT, "edges", K.split_kappa(k)[1] + ".cbor"), "wb") as f:
             f.write(K.encode(e))
-    root = {"root_kappa": root_k, "status": K.STATUS, "lane": LANE, "minted_on": MINTED_ON,
+    root = {"root_kappa": root_k, "root_blake3": K.kappa_blake3_from_value(root_v), "status": K.STATUS, "lane": LANE, "minted_on": MINTED_ON,
             "merkle_root_sha256": mroot, "merkle_leaves": len(leaves) + 0,
             "counts": {"objects": len(objects), "blobs": len(blobs), "edges": len(edge_k)},
             "names": names, "upstream": K.UPSTREAM}

@@ -1,0 +1,5 @@
+sha256:0a36d530b51f20e7c17c6c0c22e07046e4d57a5f41b9d586a49e14106705b26c r32 run-root: its bundle re-derived by this tool (out/r32)
+sha256:9fa4e25499bc50ba73edcb000e86d14fe7762b7be1202ca471583199a76bb9ce sig H2 run-root: its bundle re-derived by this tool (out/sig_h2_b96b3ca)
+sha256:28072b32adc335a21cafc96a3a42da3a5ca13a3b9130e44ddbb8f90ae37e0794 proverb: kappa_from_value over the sentence, re-derived by this tool (--text-file)
+sha256:f1d4a621724097d0b4b56c4922dd3ad961404f0c0db4a2dca78e44f22636ee5b census index: harness kappa law (sha256 over canonical JSON), re-derived by soul_mage gate G2
+sha256:b223b68bceeb3ef76528b4c51296ed19d6e950492c1e97f54db16d6f830c0135 harness census index: harness kappa law, re-derived by soul_mage gate G2

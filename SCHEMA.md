@@ -37,7 +37,11 @@ Rules every bundle obeys:
 
 0 schema, 1 lane, 2 minted_on (ISO date), 3 array of [name, kappa] pairs sorted by name,
 4 provisional merkle root (hex), 5 status label, 6 asserter, 7 upstream pins,
-[8 extra: a text-keyed map of lane facts, e.g. {runId, status, sourceHash, run_blob}].
+[8 extra: a text-keyed map of lane facts, e.g. {runId, status, sourceHash, run_blob}; optional
+`blake3_axis`: {sha256 kappa: blake3 kappa} dual labels for every object, blob and edge (bundle.py
+seals it on every mint since 2026-10-11; bundles minted earlier carry none and still verify), the upstream
+`KappaLabel::blake3` axis (blake3 over the same bytes; for objects, the same dCBOR); the verifier
+recomputes every one; root.json `root_blake3` is the root's own blake3 label, also recomputed].
 `composed-of` edges root -> ledgers, summaries, checks, images.
 
 Asserter is a placeholder string (`unsigned:<lane>`) until a key exists. With a key
@@ -67,6 +71,7 @@ requires equality. Registered rules:
 | `rows/count/1` | any | {n} |
 | `harness/run-tally/1` | harness-verdict/1 | {n, validated, statuses sorted} |
 | `sig-golf/h2-honest/1` | record/1 kind honest | {n, ok, witness_equal, compact_ok, verify_delta_max, sign_delta_cycles, sign_delta_compr, extra_compr_eq_c, expand_max, verify_max} |
+| `hashsmash/lever-tally/1` | record/1 lever rows (blake3_mage) | {n, statuses sorted, by_status, cpu_s_total 2 dp} |
 | `sig-golf/all-ok/1` | record/1 kind tamper / cross / exhaust | {n, ok, exits sorted} |
 
 ### call/1 (one solver call, hashsmash r32)

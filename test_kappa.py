@@ -97,4 +97,14 @@ except ValueError:
     print("ok   non-canonical 1900ff rejected")
 
 print("FAILURES:", fails)
+# -- blake3 axis: upstream vectors (kappa-core/src/kappa/tests.rs:13-16) -------------------------
+def test_blake3_axis():
+    import kappa as K
+    assert K.kappa_blake3_from_bytes(b"") == "blake3:af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262"
+    assert K.kappa_blake3_from_bytes(b"hello") == "blake3:ea8f163db38682925e4491c5e58d4bb3506ef8c14eb78a86e908c5624a67200f"
+    assert K.verify_kappa("blake3:ea8f163db38682925e4491c5e58d4bb3506ef8c14eb78a86e908c5624a67200f", b"hello")
+    print("ok   blake3 axis: EMPTY_BLAKE3, HELLO_BLAKE3")
+
+
+test_blake3_axis()
 sys.exit(1 if fails else 0)

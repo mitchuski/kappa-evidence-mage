@@ -76,8 +76,12 @@ class Bundle:
         v = {0: f"{NS}/run-root/1", 1: self.lane, 2: date.today().isoformat(),
              3: [[n, k] for n, k in sorted(self.names.items())], 4: mroot, 5: K.STATUS,
              6: self.asserter, 7: K.UPSTREAM}
-        if extra:
-            v[8] = extra
+        # blake3 axis (KappaLabel::blake3): a dual label for every object, blob and edge, sealed in the
+        # root; sha256 stays the identity and names every file (SCHEMA.md, run-root/1 field 8).
+        b3 = {k: K.kappa_blake3_from_bytes(b) for k, b in self.blobs.items()}
+        b3.update({k: K.kappa_blake3_from_value(o) for k, o in self.objects.items()})
+        b3.update({k: K.kappa_blake3_from_value(e) for k, e in self.edges.items()})
+        v[8] = {**(extra or {}), "blake3_axis": dict(sorted(b3.items()))}
         rk = K.kappa_from_value(v)
         self.objects[rk] = v
         for n in composed:
@@ -100,7 +104,8 @@ class Bundle:
         for k, e in self.edges.items():
             with open(os.path.join(out, "edges", K.split_kappa(k)[1] + ".cbor"), "wb") as f:
                 f.write(K.encode(e))
-        meta = {"root_kappa": self._root, "status": K.STATUS, "lane": self.lane,
+        meta = {"root_kappa": self._root, "root_blake3": K.kappa_blake3_from_value(self.objects[self._root]),
+                "status": K.STATUS, "lane": self.lane,
                 "minted_on": date.today().isoformat(), "merkle_root_sha256": self._mroot,
                 "merkle_leaves": self._nleaves,
                 "counts": {"objects": len(self.objects), "blobs": len(self.blobs), "edges": len(self.edges)},
@@ -127,7 +132,7 @@ class Bundle:
         with open(os.path.join(out, "graph.json"), "w", encoding="utf-8") as f:
             json.dump(graph, f, indent=1)
         head = [f"# {self.lane} evidence graph - minted {meta['minted_on']} - status: {K.STATUS}", "",
-                f"Run root kappa: `{self._root}`",
+                f"Run root kappa: `{self._root}`", f"Run root blake3: `{meta['root_blake3']}`",
                 f"Merkle root (provisional, SHA-256, {self._nleaves} leaves): `{self._mroot}`", "",
                 "| object | kappa |", "|---|---|"]
         head += [f"| {n} | `{k}` |" for n, k in sorted(self.names.items())]

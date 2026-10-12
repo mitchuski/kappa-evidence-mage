@@ -49,7 +49,38 @@ def rule_harness_tally(rows):
     return {"n": len(st), "validated": sum(1 for s in st if s == "VALIDATED"), "statuses": sorted(set(st))}
 
 
-RULES = {"sig-golf/h2-honest/1": rule_h2_honest, "sig-golf/all-ok/1": rule_all_ok, "harness/run-tally/1": rule_harness_tally, "rows/count/1": lambda rows: {"n": len(rows)}}
+def rule_hashsmash_gate_sum(rows):
+    g = [r[3] for r in rows if r[2] == "gate-count/1"]
+    assert len(g) == 1
+    g = g[0]
+    return {"total": g["per_step_gates"], "sum": g["xor"] + g["and"] + g["or"] + g["not"]}
+
+
+def rule_hashsmash_experiments_completed(rows):
+    ex = [r[3] for r in rows if r[2] == "experiment-result/1"]
+    return {"n": len(ex), "completed": sum(1 for e in ex if e["status"] == "completed"),
+            "successes": [e["successes"] for e in ex]}
+
+
+def rule_lever_tally(rows):
+    rs = [r[3] for r in rows]
+    st = [r["status"] for r in rs]
+    return {"n": len(rs), "statuses": sorted(set(st)), "by_status": {x: st.count(x) for x in sorted(set(st))},
+            "cpu_s_total": round(sum(float(r["cpu_s"]) for r in rs), 2)}
+
+
+def rule_orchard_ledger_sum(rows):
+    import math
+    g = [r[3] for r in rows if r[2] == "orchard-ledger/1"]
+    assert len(g) == 1
+    g = g[0]
+    return {"total": g["total_ops"], "sum": sum(g["phases"].values()),
+            "time_log2": round(math.log2(g["total_ops"] / g["C"]), 6),
+            "score": round(math.log2(g["total_ops"] / g["C"]) + max(0, math.log2(g["memory_bytes"]) - 20), 6)}
+
+
+RULES = {"hashsmash/orchard-ledger-sum/1": rule_orchard_ledger_sum, "hashsmash/lever-tally/1": rule_lever_tally, "hashsmash/gate-sum/1": rule_hashsmash_gate_sum, "hashsmash/experiments-completed/1": rule_hashsmash_experiments_completed,
+         "sig-golf/h2-honest/1": rule_h2_honest, "sig-golf/all-ok/1": rule_all_ok, "harness/run-tally/1": rule_harness_tally, "rows/count/1": lambda rows: {"n": len(rows)}}
 
 
 def main(bundle: str) -> int:
@@ -90,6 +121,24 @@ def main(bundle: str) -> int:
         meta = json.load(f)
     if meta.get("signature"):
         print("root signature present by", meta["signature"].get("by_did"), "(ed25519 not checked here; see tools/kappa_evidence.mjs verify)")
+    b3 = (root.get(8) or {}).get("blake3_axis") if isinstance(root.get(8), dict) else None
+    if b3:
+        nb = 0
+        for sk, bk in b3.items():
+            if sk in blobs:
+                data = blobs[sk]
+            elif sk in objects:
+                data = K.encode(objects[sk])
+            elif sk in edges:
+                data = K.encode(edges[sk])
+            else:
+                fail(f"blake3 axis names {sk}, which is not in the bundle"); continue
+            if not K.verify_kappa(bk, data):
+                fail(f"blake3 axis label {bk} does not match the bytes of {sk}"); continue
+            nb += 1
+        print(f"blake3 axis: {nb}/{len(b3)} dual labels recomputed")
+    if meta.get("root_blake3") and not K.verify_kappa(meta["root_blake3"], K.encode(root)):
+        fail("root_blake3 does not match the root's dCBOR")
     out = {}
     for e in edges.values():
         out.setdefault((e[0], K.RELATION_NAME[e[2]]), []).append(e[1])

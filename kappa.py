@@ -31,7 +31,7 @@ import math
 import struct
 import unicodedata
 
-STATUS = "kappa-compatible (unverified)"
+STATUS = "kappa-verified at 2af8656"  # P1 passed 2026-10-08 (P1_RESULT.md); was "kappa-compatible (unverified)"
 UPSTREAM = {"kappa-registry": "2af8656", "bc-dcbor-rust": "2e5b901 (branch feat/dcbor-derive)"}
 
 # ---------------------------------------------------------------- dCBOR encoding
@@ -135,11 +135,87 @@ def kappa_from_value(v) -> str:
     return kappa_from_bytes(encode(v))
 
 
+# ---------------------------------------------------------------- blake3 axis (pure Python)
+# Upstream: KappaLabel::blake3 = "blake3:" + hex(BLAKE3-256(content)), compute.rs:30; a first-class axis
+# beside the default sha256 (kappa_from_bytes stays sha256, compute.rs:140; sha256 is the mandatory
+# axis in multi-axis computation, compute.rs:253). Unkeyed BLAKE3, full tree mode, 32-byte output.
+# No third-party packages: this is the blake3_mage reduced-round implementation at the full 7 rounds,
+# held to upstream's EMPTY_BLAKE3 / HELLO_BLAKE3 vectors (kappa-core/src/kappa/tests.rs:13-16).
+
+_B3_IV = (0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A, 0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19)
+_B3_PERM = (2, 6, 3, 10, 7, 0, 4, 13, 1, 11, 12, 5, 9, 14, 15, 8)
+_M32 = 0xFFFFFFFF
+
+
+def _b3_compress(h, m, t, blen, flags):
+    def g(v, a, b, c, d, x, y):
+        v[a] = (v[a] + v[b] + x) & _M32; v[d] = ((v[d] ^ v[a]) >> 16 | (v[d] ^ v[a]) << 16) & _M32
+        v[c] = (v[c] + v[d]) & _M32;     v[b] = ((v[b] ^ v[c]) >> 12 | (v[b] ^ v[c]) << 20) & _M32
+        v[a] = (v[a] + v[b] + y) & _M32; v[d] = ((v[d] ^ v[a]) >> 8 | (v[d] ^ v[a]) << 24) & _M32
+        v[c] = (v[c] + v[d]) & _M32;     v[b] = ((v[b] ^ v[c]) >> 7 | (v[b] ^ v[c]) << 25) & _M32
+    v = list(h) + list(_B3_IV[:4]) + [t & _M32, (t >> 32) & _M32, blen, flags]
+    m = list(m)
+    for _ in range(7):
+        g(v, 0, 4, 8, 12, m[0], m[1]); g(v, 1, 5, 9, 13, m[2], m[3])
+        g(v, 2, 6, 10, 14, m[4], m[5]); g(v, 3, 7, 11, 15, m[6], m[7])
+        g(v, 0, 5, 10, 15, m[8], m[9]); g(v, 1, 6, 11, 12, m[10], m[11])
+        g(v, 2, 7, 8, 13, m[12], m[13]); g(v, 3, 4, 9, 14, m[14], m[15])
+        m = [m[i] for i in _B3_PERM]
+    return [v[i] ^ v[i + 8] for i in range(8)]
+
+
+def _b3_words(b: bytes):
+    b = b.ljust(64, b"\0")
+    return [int.from_bytes(b[4 * i:4 * i + 4], "little") for i in range(16)]
+
+
+def blake3_digest(data: bytes) -> bytes:
+    START, END, PARENT, ROOT = 1, 2, 4, 8
+
+    def chunk_cv(chunk, ctr, root):
+        blocks = [chunk[i:i + 64] for i in range(0, len(chunk), 64)] or [b""]
+        h = _B3_IV
+        for i, bl in enumerate(blocks):
+            f = (START if i == 0 else 0) | (END if i == len(blocks) - 1 else 0)
+            if root and i == len(blocks) - 1:
+                f |= ROOT
+            h = _b3_compress(h, _b3_words(bl), ctr, len(bl), f)
+        return h
+    chunks = [data[i:i + 1024] for i in range(0, len(data), 1024)] or [b""]
+    if len(chunks) == 1:
+        out = chunk_cv(chunks[0], 0, True)
+    else:
+        cvs = [chunk_cv(c, i, False) for i, c in enumerate(chunks)]
+
+        def merge(cv, root):
+            if len(cv) == 1:
+                return cv[0]
+            k = 1
+            while k * 2 < len(cv):
+                k *= 2
+            return _b3_compress(_B3_IV, merge(cv[:k], False) + merge(cv[k:], False), 0, 64,
+                                PARENT | (ROOT if root else 0))
+        out = merge(cvs, True)
+    return b"".join(w.to_bytes(4, "little") for w in out)
+
+
+def kappa_blake3_from_bytes(data: bytes) -> str:
+    """KappaLabel::blake3 - the blake3 axis label of raw bytes."""
+    return "blake3:" + blake3_digest(data).hex()
+
+
+def kappa_blake3_from_value(v) -> str:
+    """blake3 axis over the same canonical dCBOR bytes the sha256 kappa uses."""
+    return kappa_blake3_from_bytes(encode(v))
+
+
 def verify_kappa(kappa: str, data: bytes) -> bool:
     axis, _, hexd = kappa.partition(":")
-    if axis != "sha256":
-        raise ValueError("only the sha256 axis is implemented here")
-    return hashlib.sha256(data).hexdigest() == hexd
+    if axis == "sha256":
+        return hashlib.sha256(data).hexdigest() == hexd
+    if axis == "blake3":
+        return blake3_digest(data).hex() == hexd
+    raise ValueError(f"axis {axis} is not implemented here (sha256, blake3 are)")
 
 
 def split_kappa(kappa: str) -> tuple[str, str]:

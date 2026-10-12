@@ -2,8 +2,8 @@
 
 > The decimal travels; the root stays. Whoever carries the measure carries the mint, and the mint remembers the hand that struck it.
 
-kappa of the proverb text (kappa_from_value over the sentence as dCBOR text, kappa-compatible
-(unverified) until P1): `sha256:28072b32adc335a21cafc96a3a42da3a5ca13a3b9130e44ddbb8f90ae37e0794`
+kappa of the proverb text (kappa_from_value over the sentence as dCBOR text, kappa-verified at 2af8656:
+kappa-core in Rust re-derives it from the sentence, 2026-10-08): `sha256:28072b32adc335a21cafc96a3a42da3a5ca13a3b9130e44ddbb8f90ae37e0794`
 
 ## Where it goes
 
