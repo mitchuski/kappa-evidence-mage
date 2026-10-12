@@ -27,7 +27,9 @@ Status label for every value produced here until P1 runs the Rust crate's own te
 from __future__ import annotations
 
 import hashlib
+import json
 import math
+import os
 import struct
 import unicodedata
 
@@ -209,13 +211,102 @@ def kappa_blake3_from_value(v) -> str:
     return kappa_blake3_from_bytes(encode(v))
 
 
+# ---------------------------------------------------------------- poseidon axis (pure Python)
+# Orchard P128Pow5T3 over Pallas (halo2_poseidon 0.2.0, MIT/Apache-2.0; constants pinned in
+# orchard_poseidon_constants.json, provenance in ORCHARD_POSEIDON_NOTICE.md). Width 3, x^5 S-box,
+# 8 full + 56 partial rounds; each round = add constants, S-box (all lanes in full rounds, lane 0 in
+# partial rounds), MDS. A reduced instance with r partial rounds runs original rounds 0..3, 4..3+r,
+# 60..63, exactly as the HashSmash verifier (verifier/poseidon.py). r = 56 is the deployed hash.
+#   poseidon2(a, b)  = lane 0 of permute([a, b, 2^65])                     (ConstantLength<2>)
+#   poseidon_digest  = sponge "poseidon-orchard-chain/1": data || 0x01 || 0* to a multiple of 31;
+#                      acc = len(data); acc = poseidon2(acc, chunk_le) per 31-byte chunk; 32 bytes LE.
+#   Merkle (twin)    = leaf = poseidon_digest(0x00 || label) as a field element,
+#                      node = poseidon2(left, right), odd last node paired with itself; 32 bytes LE.
+
+POSEIDON_P = 0x40000000000000000000000000000000224698fc094cf91b992d30ed00000001
+POSEIDON_SPONGE = "poseidon-orchard-chain/1"
+_POSEIDON_PARAMS = None
+
+
+def _poseidon_params():
+    global _POSEIDON_PARAMS
+    if _POSEIDON_PARAMS is None:
+        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "orchard_poseidon_constants.json"),
+                  encoding="utf-8") as f:
+            d = json.load(f)
+        _POSEIDON_PARAMS = (tuple(tuple(int(x, 16) for x in row) for row in d["round_constants"]),
+                            tuple(tuple(int(x, 16) for x in row) for row in d["mds"]))
+    return _POSEIDON_PARAMS
+
+
+def poseidon_permute(state3, rounds: int = 56) -> tuple:
+    """Orchard permutation of three canonical Pallas elements with `rounds` partial rounds (0..56)."""
+    if type(rounds) is not int or not 0 <= rounds <= 56:
+        raise ValueError("Orchard requires 0..56 partial rounds")
+    if len(state3) != 3 or any(type(x) is not int or not 0 <= x < POSEIDON_P for x in state3):
+        raise ValueError("requires three canonical Pallas field elements")
+    rc, mds = _poseidon_params()
+    p = POSEIDON_P
+    s = list(state3)
+    for i in (*range(4), *range(4, 4 + rounds), *range(60, 64)):
+        c = rc[i]
+        s = [(s[0] + c[0]) % p, (s[1] + c[1]) % p, (s[2] + c[2]) % p]
+        if i < 4 or i >= 60:
+            s = [pow(x, 5, p) for x in s]
+        else:
+            s[0] = pow(s[0], 5, p)
+        s = [(row[0] * s[0] + row[1] * s[1] + row[2] * s[2]) % p for row in mds]
+    return tuple(s)
+
+
+def poseidon2(a: int, b: int) -> int:
+    """ConstantLength<2> Orchard hash: lane 0 of the full (r=56) permutation of [a, b, 2^65]."""
+    return poseidon_permute((a, b, 1 << 65), 56)[0]
+
+
+def _poseidon_field(data: bytes) -> int:
+    """poseidon_digest as a field element (the sponge accumulator)."""
+    padded = data + b"\x01"
+    padded += b"\x00" * (-len(padded) % 31)
+    acc = len(data) % POSEIDON_P
+    for i in range(0, len(padded), 31):
+        acc = poseidon2(acc, int.from_bytes(padded[i:i + 31], "little"))
+    return acc
+
+
+def poseidon_digest(data: bytes) -> bytes:
+    """Sponge "poseidon-orchard-chain/1" over bytes; 32 bytes little-endian."""
+    return _poseidon_field(bytes(data)).to_bytes(32, "little")
+
+
+def kappa_poseidon_from_bytes(data: bytes) -> str:
+    return "poseidon:" + poseidon_digest(data).hex()
+
+
+def kappa_poseidon_from_value(v) -> str:
+    """poseidon axis over the same canonical dCBOR bytes the sha256 kappa uses."""
+    return kappa_poseidon_from_bytes(encode(v))
+
+
+def poseidon_merkle_hex(labels: list) -> str | None:
+    """Poseidon twin of the kappa Merkle rule over label strings; hex of the 32-byte LE root, or None."""
+    if not labels:
+        return None
+    lv = [_poseidon_field(b"\x00" + x.encode()) for x in labels]
+    while len(lv) > 1:
+        lv = [poseidon2(lv[i], lv[i + 1] if i + 1 < len(lv) else lv[i]) for i in range(0, len(lv), 2)]
+    return lv[0].to_bytes(32, "little").hex()
+
+
 def verify_kappa(kappa: str, data: bytes) -> bool:
     axis, _, hexd = kappa.partition(":")
     if axis == "sha256":
         return hashlib.sha256(data).hexdigest() == hexd
     if axis == "blake3":
         return blake3_digest(data).hex() == hexd
-    raise ValueError(f"axis {axis} is not implemented here (sha256, blake3 are)")
+    if axis == "poseidon":
+        return poseidon_digest(data).hex() == hexd
+    raise ValueError(f"axis {axis} is not implemented here (sha256, blake3, poseidon are)")
 
 
 def split_kappa(kappa: str) -> tuple[str, str]:
