@@ -38,9 +38,9 @@ def main():
             ks.append(B.record(seq, "certificate/1", {"R": R, "pair": i, "digest_le_hex": L["digest"], "s0": tr["s0"],
                 "s1": pr["s1"], "inputs_a": tr["inputs0"], "inputs_b": pr["inputs"],
                 "checker": "verifier/poseidon.py (organizer) + attack.py permutation"}, blobs[lf]))
-        phases = {"build_f": L["phases"]["build_f"]}
+        phases = {"setup": L["phases"]["setup"]}
         for t in L["trials"]:
-            for k in ("ops_prepare", "ops_powering", "ops_gcd", "ops_finish"):
+            for k in ("ops_build", "ops_prepare", "ops_powering", "ops_gcd", "ops_finish"):
                 if k in t: phases[f"trial{t['n']}_{k}"] = t[k]
         seq += 1
         ks.append(B.record(seq, "orchard-ledger/1", {"R": R, "D": L["D"], "N1": L["N1"], "N2": L["N2"], "C": L["C"],
