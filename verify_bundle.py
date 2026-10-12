@@ -74,6 +74,7 @@ def rule_orchard_ledger_sum(rows):
     g = [r[3] for r in rows if r[2] == "orchard-ledger/1"]
     assert len(g) == 1
     g = g[0]
+    assert abs(sum(g["phases"].values()) - g["total_ops"]) < 1e-6, "orchard ledger: phases do not sum to total_ops"
     return {"total": g["total_ops"], "sum": sum(g["phases"].values()),
             "time_log2": round(math.log2(g["total_ops"] / g["C"]), 6),
             "score": round(math.log2(g["total_ops"] / g["C"]) + max(0, math.log2(g["memory_bytes"]) - 20), 6)}

@@ -40,7 +40,7 @@ def main():
                 "checker": "verifier/poseidon.py (organizer) + attack.py permutation"}, blobs[lf]))
         phases = {"setup": L["phases"]["setup"]}
         for t in L["trials"]:
-            for k in ("ops_build", "ops_prepare", "ops_powering", "ops_gcd", "ops_finish"):
+            for k in ("ops_build", "ops_prepare", "ops_powering", "ops_gcd", "ops_gcd_overhead", "ops_finish"):
                 if k in t: phases[f"trial{t['n']}_{k}"] = t[k]
         seq += 1
         ks.append(B.record(seq, "orchard-ledger/1", {"R": R, "D": L["D"], "N1": L["N1"], "N2": L["N2"], "C": L["C"],
@@ -82,8 +82,13 @@ def main():
     ledgers.append(TAG + "-package-files")
     extra = {"snapshot_files": n, "board": "mooselumph/hashsmash-pareto/poseidon",
              "submissions": {"r1": "cb4454d3", "r2": "1096f6b9"}}
-    if TAG != "poseidon_v1":
-        extra["revises"] = "sha256:ce2218637dc37e66c057d94030b3aa60d4a4f147f47f4b6f17a7230ff89b9b75"
+    REVISES = {"poseidon_v2": "sha256:ce2218637dc37e66c057d94030b3aa60d4a4f147f47f4b6f17a7230ff89b9b75",
+               "poseidon_v3": "sha256:fedd8e9c3667fc1140a75829084f879de629e2bd1a3e4519d9c78d4fc302e627"}
+    if TAG in REVISES:
+        extra["revises"] = REVISES[TAG]
+    if TAG == "poseidon_v3":
+        extra["submissions"] = {"earlier": {"r1": "cb4454d3", "r2": "1096f6b9"}}
+        extra["packages"] = "r=1 and r=2 v4 packages: start points s_n = n + 1, memory-lean half-gcd, explicit gcd overhead"
     root = B.root(ledgers + checks, extra)
     B.write(OUT, ["", f"Files in snapshot: {n}", f"Ledgers: {', '.join(ledgers)}", "",
                   "Records are recomputed by verify_bundle.py from the bundle alone (ledger sums, log2 totals).",
