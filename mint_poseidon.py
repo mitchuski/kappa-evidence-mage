@@ -14,7 +14,7 @@ ASSERTER = "unsigned:poseidon_mage"
 
 def read(name): return open(os.path.join(IN, name), "rb").read()
 def check_sums():
-    n = 0
+    n = 0  # SHA256SUMS lines may carry subpaths (lever_evidence/...)
     for line in read("SHA256SUMS.txt").decode().splitlines():
         parts = line.split()
         if len(parts) < 2: continue
@@ -26,7 +26,7 @@ def check_sums():
 def main():
     n = check_sums()
     B = Bundle("hashsmash-pareto/poseidon/" + TAG, ASSERTER)
-    files = sorted(f for f in os.listdir(IN) if f != "SHA256SUMS.txt")
+    files = sorted(f for f in os.listdir(IN) if f != "SHA256SUMS.txt" and os.path.isfile(os.path.join(IN, f)))
     blobs = {f: B.put_blob(read(f), "file:" + f) for f in files}
     seq = 0; ledgers, checks = [], []
     for R in (1, 2):
@@ -55,13 +55,36 @@ def main():
                  "time_log2": round(math.log2(g["total_ops"] / g["C"]), 6),
                  "score": round(math.log2(g["total_ops"] / g["C"]) + max(0, math.log2(g["memory_bytes"]) - 20), 6)})
         ledgers.append(f"r{R}-evidence"); checks.append(f"r{R}-ledger-sum")
+    if os.path.exists(os.path.join(IN, "levers.jsonl")):
+        led_b = blobs["levers.jsonl"]
+        rows = [json.loads(l) for l in read("levers.jsonl").decode().splitlines() if l.strip()]
+        ev_blobs, lks = {}, []
+        for row in rows:
+            for p, h in row["evidence"].items():
+                if p not in ev_blobs:
+                    raw = read(os.path.join("lever_evidence", p))
+                    if hashlib.sha256(raw).hexdigest() != h: raise SystemExit("lever evidence hash mismatch: " + p)
+                    ev_blobs[p] = B.put_blob(raw, "evidence:" + p)
+            k = B.record(1000 + row["seq"], row["status"], row, led_b, f"lever:{row['lever']}")
+            for p in row["evidence"]: B.edge(k, ev_blobs[p], "refers-to")
+            lks.append(k)
+        llk = B.ledger("poseidon-lever-ledger", f"the {len(lks)} Orchard Poseidon levers: adopted, measured and no-go paths", lks)
+        st = [r["status"] for r in rows]
+        B.check("poseidon-lever-tally", llk, "hashsmash/lever-tally/1",
+                {"n": len(rows), "statuses": sorted(set(st)), "by_status": {x: st.count(x) for x in sorted(set(st))},
+                 "cpu_s_total": round(sum(float(r["cpu_s"]) for r in rows), 2)})
+        ledgers.append("poseidon-lever-ledger"); checks.append("poseidon-lever-tally")
     fks = []
     for f in files:
         seq += 1; data = read(f)
         fks.append(B.record(seq, "package-file/1", {"name": f, "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}, blobs[f]))
     B.ledger(TAG + "-package-files", "package files, ledgers, programs (records with provenance to their blobs)", fks)
     ledgers.append(TAG + "-package-files")
-    root = B.root(ledgers + checks, {"snapshot_files": n, "board": "mooselumph/hashsmash-pareto/poseidon"})
+    extra = {"snapshot_files": n, "board": "mooselumph/hashsmash-pareto/poseidon",
+             "submissions": {"r1": "cb4454d3", "r2": "1096f6b9"}}
+    if TAG != "poseidon_v1":
+        extra["revises"] = "sha256:ce2218637dc37e66c057d94030b3aa60d4a4f147f47f4b6f17a7230ff89b9b75"
+    root = B.root(ledgers + checks, extra)
     B.write(OUT, ["", f"Files in snapshot: {n}", f"Ledgers: {', '.join(ledgers)}", "",
                   "Records are recomputed by verify_bundle.py from the bundle alone (ledger sums, log2 totals).",
                   "Certificates are re-checkable with the organizer verifier on the message files."])
