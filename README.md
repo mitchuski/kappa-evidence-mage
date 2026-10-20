@@ -18,7 +18,7 @@ shape exactly: each item an object with a kappa, `derived-from` edges to the can
 the pinned contract, and killed levers that stay addressable. The sig_mage adapter maps the
 dossier fields onto objects here instead of inventing a second format.
 
-Source proposal: `~/hashsmash_mage/notes/2026-10-07_kappa_evidence_ledger_research_note.md`
+Source proposal: the hashsmash_mage research note of 2026-10-07 on a kappa evidence ledger
 (P0-P4 plan). This directory is P0 and the seam for P1.
 
 ## What is here
@@ -163,3 +163,8 @@ it lands (P3).
 - P1 (after WSL frees): run `P1_RUST_CHECK.md`; flip the label; add the signed namespace
   root and inclusion proofs from a local registry.
 - Then decide whether the v7 r32 note cites the ledger kappa and the root.
+
+## Licence
+
+Code MIT, documents CC BY 4.0 (`LICENSE.md`). Upstream rules, data and code this repository
+mirrors, copies or tests against keep their own licences (`NOTICE.md`).

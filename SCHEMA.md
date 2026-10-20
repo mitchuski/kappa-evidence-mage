@@ -73,6 +73,10 @@ requires equality. Registered rules:
 | `sig-golf/h2-honest/1` | record/1 kind honest | {n, ok, witness_equal, compact_ok, verify_delta_max, sign_delta_cycles, sign_delta_compr, extra_compr_eq_c, expand_max, verify_max} |
 | `hashsmash/lever-tally/1` | record/1 lever rows (blake3_mage) | {n, statuses sorted, by_status, cpu_s_total 2 dp} |
 | `sig-golf/all-ok/1` | record/1 kind tamper / cross / exhaust | {n, ok, exits sorted} |
+| `sig-golf/remap-emu/1` | record/1 kind emu / cover (base vs variant image runs) | {n, accept_all, delta_set, sig_equal, wit_equal, hashseq_equal, instr_diff_set} |
+| `sig-golf/postgate/1` | record/1 kind postgate (parsed postgate output) | {n, passed (clone==worktree, std axioms, kernel accepts, okay, exit 0, ok true), trees sorted, axioms sorted} |
+| `sig-golf/claim-score/1` | record/1 kinds claim + check-submission | {S, W, C, score = S*C, check_ok, check_score, check_C} |
+| `sig-golf/k5-emu/1` | record/1 kind k5-emu (paired image runs: ok, same_sig_wit, same_hashes, delta, exits_v) | {n, ok, same_sig_wit, same_hashes, delta_set, exits_v} |
 
 ### call/1 (one solver call, hashsmash r32)
 

@@ -80,8 +80,45 @@ def rule_orchard_ledger_sum(rows):
             "score": round(math.log2(g["total_ops"] / g["C"]) + max(0, math.log2(g["memory_bytes"]) - 20), 6)}
 
 
+def rule_remap_emu(rows):
+    rs = [r[3] for r in rows]
+    return {"n": len(rs),
+            "accept_all": all(set(r["base_exits"]) == {0} and set(r["var_exits"]) == {0} for r in rs),
+            "delta_set": sorted({r["delta"] for r in rs}),
+            "sig_equal": sum(1 for r in rs if r["sig_equal"]), "wit_equal": sum(1 for r in rs if r["wit_equal"]),
+            "hashseq_equal": sum(1 for r in rs if r["hashseq_equal"]),
+            "instr_diff_set": sorted({json.dumps(r["instr_diff"], sort_keys=True) for r in rs})}
+
+
+def rule_postgate(rows):
+    rs = [r[3] for r in rows]
+    std = ["Classical.choice", "Quot.sound", "propext"]
+    ok = lambda f: (f["clone_eq_worktree"] and f["axioms"] == std and f["kernel_accepts"] and f["okay"]
+                    and f["exit"] == 0 and f["ok_true"])
+    return {"n": len(rs), "passed": sum(1 for f in rs if ok(f)), "trees": sorted(f["tree"] for f in rs),
+            "axioms": sorted({a for f in rs for a in f["axioms"]})}
+
+
+def rule_claim_score(rows):
+    c = [r[3] for r in rows if r[2] == "claim"]
+    k = [r[3] for r in rows if r[2] == "check-submission"]
+    assert len(c) == 1 and len(k) == 1
+    c, k = c[0], k[0]
+    return {"S": c["S"], "W": c["W"], "C": c["C"], "score": c["S"] * c["C"],
+            "check_ok": k["ok"], "check_score": k["score"], "check_C": k["claim"]["C"]}
+
+
+def rule_k5_emu(rows):
+    rs = [r[3] for r in rows]
+    return {"n": len(rs), "ok": sum(1 for r in rs if r["ok"]), "same_sig_wit": sum(1 for r in rs if r["same_sig_wit"]),
+            "same_hashes": sum(1 for r in rs if r["same_hashes"]), "delta_set": sorted({r["delta"] for r in rs}),
+            "exits_v": sorted({r["exits_v"] for r in rs})}
+
+
 RULES = {"hashsmash/orchard-ledger-sum/1": rule_orchard_ledger_sum, "hashsmash/lever-tally/1": rule_lever_tally, "hashsmash/gate-sum/1": rule_hashsmash_gate_sum, "hashsmash/experiments-completed/1": rule_hashsmash_experiments_completed,
-         "sig-golf/h2-honest/1": rule_h2_honest, "sig-golf/all-ok/1": rule_all_ok, "harness/run-tally/1": rule_harness_tally, "rows/count/1": lambda rows: {"n": len(rows)}}
+         "sig-golf/h2-honest/1": rule_h2_honest, "sig-golf/all-ok/1": rule_all_ok, "harness/run-tally/1": rule_harness_tally, "rows/count/1": lambda rows: {"n": len(rows)},
+         "sig-golf/remap-emu/1": rule_remap_emu, "sig-golf/postgate/1": rule_postgate, "sig-golf/claim-score/1": rule_claim_score,
+         "sig-golf/k5-emu/1": rule_k5_emu}
 
 
 def main(bundle: str) -> int:
