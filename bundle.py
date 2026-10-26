@@ -71,7 +71,9 @@ class Bundle:
 
     # -- root and output -----------------------------------------------------------
     def root(self, composed: list[str], extra: dict | None = None) -> str:
-        leaves = sorted(list(self.objects) + list(self.blobs) + list(self.edges))
+        # a set, as every verifier reads it: a blob whose bytes equal an object's
+        # or edge's dCBOR shares its κ, and a duplicate leaf would change the root
+        leaves = sorted(set(self.objects) | set(self.blobs) | set(self.edges))
         mroot = K.merkle_root([x.encode() for x in leaves]).hex()
         v = {0: f"{NS}/run-root/1", 1: self.lane, 2: date.today().isoformat(),
              3: [[n, k] for n, k in sorted(self.names.items())], 4: mroot, 5: K.STATUS,

@@ -10,4 +10,7 @@ grep -q '"site_check"' ~/kappa-registry-p1/Cargo.toml || sed -i 's/members = \[/
 (cd ~/kappa-registry-p1 && cargo build --release -p site_check 2>&1 | grep -E "^error|Finished")
 cd /mnt/c/Users/mitch/soul_mage/kappa && ~/p1_target/release/site_check \
   --site _site_addresses.txt --anchors _site_anchors.txt --text-file $KE/site_check/proverb_sentence.txt \
-  fleet-chain work-chain fund-chain research-chain $KE/out/r32 $KE/out/sig_h2_b96b3ca
+  fleet-chain work-chain fund-chain research-chain $KE/out/r32 $KE/out/sig_h2_b96b3ca \
+  $(ls -d fleet-chain-epochs/*/ 2>/dev/null)
+# sealed epochs (2026-10-25): soul_mage chain.py seals each superseded fleet-chain bundle under
+# kappa/fleet-chain-epochs/, so an address a page showed under an earlier mint still resolves

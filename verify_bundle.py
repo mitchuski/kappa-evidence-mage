@@ -44,6 +44,15 @@ def rule_all_ok(rows):
             "exits": sorted({str(r.get("exit", r.get("expand_exit"))) for r in rs})}
 
 
+def rule_formal_axiom_audit(rows):
+    """formal_mage: each row one cited Lean theorem with its printed axiom footprint."""
+    rs = [r[3] for r in rows]
+    std = {"propext", "Classical.choice", "Quot.sound"}
+    return {"n": len(rs), "ok": sum(1 for r in rs if r["ok"]),
+            "axioms": sorted({a for r in rs for a in r["axioms"]}),
+            "nonstandard": sorted({a for r in rs for a in r["axioms"] if a not in std})}
+
+
 def rule_harness_tally(rows):
     st = [r[2] for r in rows]
     return {"n": len(st), "validated": sum(1 for s in st if s == "VALIDATED"), "statuses": sorted(set(st))}
@@ -116,7 +125,7 @@ def rule_k5_emu(rows):
 
 
 RULES = {"hashsmash/orchard-ledger-sum/1": rule_orchard_ledger_sum, "hashsmash/lever-tally/1": rule_lever_tally, "hashsmash/gate-sum/1": rule_hashsmash_gate_sum, "hashsmash/experiments-completed/1": rule_hashsmash_experiments_completed,
-         "sig-golf/h2-honest/1": rule_h2_honest, "sig-golf/all-ok/1": rule_all_ok, "harness/run-tally/1": rule_harness_tally, "rows/count/1": lambda rows: {"n": len(rows)},
+         "sig-golf/h2-honest/1": rule_h2_honest, "sig-golf/all-ok/1": rule_all_ok, "harness/run-tally/1": rule_harness_tally, "rows/count/1": lambda rows: {"n": len(rows)}, "formal/axiom-audit/1": rule_formal_axiom_audit,
          "sig-golf/remap-emu/1": rule_remap_emu, "sig-golf/postgate/1": rule_postgate, "sig-golf/claim-score/1": rule_claim_score,
          "sig-golf/k5-emu/1": rule_k5_emu}
 

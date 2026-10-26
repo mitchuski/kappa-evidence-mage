@@ -59,6 +59,9 @@ fn check_bundle(dir: &Path, t: &mut Tally) -> BTreeSet<String> {
         for (k, e) in &edges { if text(e.as_map().unwrap(), 0).as_deref() != Some(root_k.as_str()) { leaves.push(k.clone()); } }
         leaves.extend(blobs.iter().cloned());
         leaves.sort();
+        // the leaf set is a set (as the Python and JS verifiers read it): a κ that is
+        // both an object and a blob counts once
+        leaves.dedup();
         let refs: Vec<&[u8]> = leaves.iter().map(|s| s.as_bytes()).collect();
         let mr = hex::encode(merkle_root(&refs).unwrap());
         t.hit(mr == meta_mroot && text(m, 4).as_deref() == Some(mr.as_str()) && leaves.len() == meta_leaves,
@@ -74,7 +77,10 @@ fn check_bundle(dir: &Path, t: &mut Tally) -> BTreeSet<String> {
     let mut links: BTreeMap<u64, (String, String, Option<String>)> = BTreeMap::new();
     for (k, o) in &objects { let m = o.as_map().unwrap();
         if text(m, 0).as_deref() == Some("agentprivacy-evidence/link/1") {
-            links.insert(uint(m, 1).unwrap(), (k.clone(), text(m, 2).unwrap_or_default(), text(m, 3))); } }
+            let seq = uint(m, 1).unwrap();
+            // two links with one seq must fail, not let the later silently replace the earlier
+            let dup = links.insert(seq, (k.clone(), text(m, 2).unwrap_or_default(), text(m, 3))).is_some();
+            t.hit(!dup, &format!("{name}: two links share seq {seq}")); } }
     let mut prev: Option<String> = None;
     for (i, (seq, (k, rec, p))) in links.iter().enumerate() {
         t.hit(*seq == i as u64, &format!("{name}: link seq gap at {seq}"));
