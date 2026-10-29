@@ -14,11 +14,13 @@ Full legal code: <https://creativecommons.org/licenses/by/4.0/legalcode>
 
 Attribution: "kappa-evidence-mage, by Mitchell Travers / 0xagentprivacy, CC BY 4.0".
 
-## Code — MIT
+## Code — MIT OR Apache-2.0
 
 All source code in this repository (Python, Rust, shell scripts and any other executable
-or configuration file) is licensed under the MIT licence, except where `NOTICE.md` says
-otherwise:
+or configuration file) is dual-licensed under the MIT licence or the Apache License,
+Version 2.0, at your option, except where `NOTICE.md` says otherwise. This matches the
+licensing of the UOR kappa-registry rules the code re-implements. The Apache-2.0 text is
+in `LICENSE-APACHE`; the MIT text follows:
 
     MIT License
 
@@ -41,6 +43,12 @@ otherwise:
     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
+
+## Contributions
+
+Unless you explicitly state otherwise, any contribution intentionally submitted for
+inclusion in this repository, as defined in the Apache-2.0 licence, is dual-licensed as
+above, without any additional terms or conditions.
 
 ## Data
 

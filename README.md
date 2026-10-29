@@ -166,5 +166,5 @@ it lands (P3).
 
 ## Licence
 
-Code MIT, documents CC BY 4.0 (`LICENSE.md`). Upstream rules, data and code this repository
+Code MIT OR Apache-2.0 (`LICENSE.md`, `LICENSE-APACHE`), documents CC BY 4.0. Upstream rules, data and code this repository
 mirrors, copies or tests against keep their own licences (`NOTICE.md`).
