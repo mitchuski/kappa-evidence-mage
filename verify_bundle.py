@@ -6,8 +6,9 @@ Trusts nothing but SHA-256. Checks: file names re-hash from content and objects 
 dCBOR; the root is a run-root/1; composed-of walk reaches every named ledger and check; every
 ledger's rows exist and match its composed-of edges; every row carries evidence-provenance to a
 blob in the bundle; summary/1 and check/1 facts are recomputed from the rows under the named
-rule; images/1 blobs match the layout.json hashes they declare and byte-identical programs have
-equal kappas; the provisional merkle root matches; leak scan. Exit 0 only if all pass.
+rule and must equal the stored facts byte for byte (canonical dCBOR); images/1 blobs match
+the layout.json hashes they declare and byte-identical programs have equal kappas; a run-root
+field 9 (prev) is a well-formed root kappa (verify_chain.py checks the link itself); the provisional merkle root matches; leak scan. Exit 0 only if all pass.
 """
 from __future__ import annotations
 
@@ -51,6 +52,63 @@ def rule_formal_axiom_audit(rows):
     return {"n": len(rs), "ok": sum(1 for r in rs if r["ok"]),
             "axioms": sorted({a for r in rs for a in r["axioms"]}),
             "nonstandard": sorted({a for r in rs for a in r["axioms"] if a not in std})}
+
+
+def rule_flashprove_verify_tally(rows):
+    """flashprove_mage: cp_verify runs over stored vectors (kind verify, honest) and altered copies (kind altered)."""
+    h = [r[3] for r in rows if r[2] == "verify"]
+    a = [r[3] for r in rows if r[2] == "altered"]
+    hy = sum(1 for f in h if f["verdict"] == "YES" and f["exit"] == 0)
+    ar = sum(1 for f in a if str(f["verdict"]).startswith("NO") and f["exit"] != 0)
+    builds = sorted({f["build"] for f in h if f.get("build")})
+    return {"n": len(rows), "honest": len(h), "honest_yes": hy, "altered": len(a), "altered_rejected": ar,
+            "builds": builds, "ok": bool(h) and hy == len(h) and ar == len(a) and len(builds) == 1}
+
+
+def _cp_verify_cmd():
+    """FLASHPROVE_CP_VERIFY: the verifier's path, or on Windows 'wsl -e /home/<user>/flashprove/bin/cp_verify'."""
+    cmd = os.environ.get("FLASHPROVE_CP_VERIFY", "").split()
+    return cmd or None
+
+
+def _to_wsl(p: str) -> str:
+    return f"/mnt/{p[0].lower()}{p[2:].replace(chr(92), '/')}"
+
+
+def rule_flashprove_verify_rerun(rows, blobs):
+    """flashprove_mage: re-run cp_verify on the sealed files of each proven-reply row (kind proven-reply: files, id,
+    expected). The verifier recomputes the verdicts itself; the build digest cp_verify prints pins the sources."""
+    import subprocess, tempfile
+    cmd = _cp_verify_cmd()
+    if not cmd:
+        raise RuntimeError("rule flashprove/verify-rerun/1 needs cp_verify: set FLASHPROVE_CP_VERIFY to its path "
+                           "(on Windows: 'wsl -e /home/<user>/flashprove/bin/cp_verify')")
+    verdicts, builds, match = [], set(), 0
+    for r in rows:
+        f = r[3]
+        with tempfile.TemporaryDirectory() as d:
+            for rel, kk in sorted(f["files"].items()):
+                p = os.path.join(d, rel)
+                os.makedirs(os.path.dirname(p), exist_ok=True)
+                with open(p, "wb") as fh:
+                    fh.write(blobs[kk])
+            base = _to_wsl(d) if cmd[0] == "wsl" else d
+            args = cmd + [f"{base}/config", f"{base}/ivk", f"{base}/example.req", f"{base}/example.y",
+                          f"{base}/example.proof", "-id", f["id"]]
+            pr = subprocess.run(args, capture_output=True, text=True, encoding="utf-8", errors="replace")
+        lines = [l for l in pr.stdout.splitlines() if l.strip()]
+        verdict = lines[-1].strip() if lines else f"(no output, exit {pr.returncode})"
+        m = re.search(r"\bbuild=([0-9a-f]{64})", pr.stdout)
+        if m:
+            builds.add(m.group(1))
+        verdicts.append(verdict)
+        match += verdict == f["expected"] and (pr.returncode == 0) == (verdict == "YES")
+    return {"n": len(rows), "reran": len(rows), "yes": verdicts.count("YES"),
+            "refused": sum(1 for v in verdicts if v.startswith("NO")), "verdicts": sorted(set(verdicts)),
+            "builds": sorted(builds), "ok": match == len(rows) and len(builds) == 1}
+
+
+rule_flashprove_verify_rerun.needs_blobs = True
 
 
 def rule_harness_tally(rows):
@@ -125,7 +183,7 @@ def rule_k5_emu(rows):
 
 
 RULES = {"hashsmash/orchard-ledger-sum/1": rule_orchard_ledger_sum, "hashsmash/lever-tally/1": rule_lever_tally, "hashsmash/gate-sum/1": rule_hashsmash_gate_sum, "hashsmash/experiments-completed/1": rule_hashsmash_experiments_completed,
-         "sig-golf/h2-honest/1": rule_h2_honest, "sig-golf/all-ok/1": rule_all_ok, "harness/run-tally/1": rule_harness_tally, "rows/count/1": lambda rows: {"n": len(rows)}, "formal/axiom-audit/1": rule_formal_axiom_audit,
+         "sig-golf/h2-honest/1": rule_h2_honest, "sig-golf/all-ok/1": rule_all_ok, "harness/run-tally/1": rule_harness_tally, "rows/count/1": lambda rows: {"n": len(rows)}, "formal/axiom-audit/1": rule_formal_axiom_audit, "flashprove/verify-tally/1": rule_flashprove_verify_tally, "flashprove/verify-rerun/1": rule_flashprove_verify_rerun,
          "sig-golf/remap-emu/1": rule_remap_emu, "sig-golf/postgate/1": rule_postgate, "sig-golf/claim-score/1": rule_claim_score,
          "sig-golf/k5-emu/1": rule_k5_emu}
 
@@ -163,6 +221,11 @@ def main(bundle: str) -> int:
     if not root or not str(root.get(0, "")).endswith("/run-root/1"):
         fail("root kappa is not a run-root object in the bundle"); return 1
     print("root", root_k, "| status:", root[5], "| minted", root[2], "| lane", root[1])
+    if 9 in root:  # run-root/1 field 9: the previous step's root; verify_chain.py checks the link
+        if not (isinstance(root[9], str) and re.fullmatch(r"sha256:[0-9a-f]{64}", root[9])):
+            fail(f"run-root field 9 (prev) is not a sha256 root kappa: {root[9]!r}")
+        else:
+            print("prev root", root[9], "(chain link; checked against the previous bundle by verify_chain.py)")
     names = {n: k for n, k in root[3]}
     with open(os.path.join(bundle, "root.json"), encoding="utf-8") as f:
         meta = json.load(f)
@@ -232,14 +295,18 @@ def main(bundle: str) -> int:
             rows = [objects[r] for r in led[2] if r in objects]
             if kd == "summary":
                 rec = rule_r32_summary(rows)
-                stored = {2: v[2], 3: float(v[3]), 4: v[4], 5: float(v[5])}
+                stored = {2: v[2], 3: v[3], 4: v[4], 5: v[5]}
                 label = f"summary of {led[1]}"
             else:
                 fn = RULES.get(v[2])
                 if not fn:
                     fail(f"check {k}: unknown rule {v[2]}"); continue
-                rec, stored, label = fn(rows), v[3], f"check {v[2]} of {led[1]}"
-            if rec != stored:
+                rec = fn(rows, blobs) if getattr(fn, "needs_blobs", False) else fn(rows)
+                stored, label = v[3], f"check {v[2]} of {led[1]}"
+            # byte equality of canonical encodings, not Python ==: True == 1 and {1: x} == {True: x} in Python,
+            # but they are different dCBOR (f5 vs 01), so a stored fact must be the very bytes the rule recomputes
+            # (as kappa_evidence.mjs compares them). Integral floats still reduce to ints (dCBOR numeric reduction).
+            if K.encode(rec) != K.encode(stored):
                 fail(f"{label}: recomputed {rec} != stored {stored}")
             else:
                 print(f"recomputed {label}: {json.dumps(rec)}")

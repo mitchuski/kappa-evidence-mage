@@ -42,6 +42,12 @@ Rules every bundle obeys:
 seals it on every mint since 2026-10-11; bundles minted earlier carry none and still verify), the upstream
 `KappaLabel::blake3` axis (blake3 over the same bytes; for objects, the same dCBOR); the verifier
 recomputes every one; root.json `root_blake3` is the root's own blake3 label, also recomputed].
+[9 prev: the previous step's run-root kappa (text, `sha256:<hex>`), the chain link; optional, set only
+when the minter is given one (`--prev`), so a root without it encodes exactly as before. verify_bundle.py
+only checks its form; verify_chain.py (and `kappa_evidence.mjs chain`) checks, over an ordered list of
+bundles, that each bundle verifies, each field 9 equals the previous bundle's root kappa, the lattice
+steps (field 8 `lattice.step`, else position) run contiguously, and the head is the last root. A step
+without field 9 is reported `unlinked (legacy)`, not failed: its link is only the quotation in a reader.]
 `composed-of` edges root -> ledgers, summaries, checks, images.
 
 Asserter is a placeholder string (`unsigned:<lane>`) until a key exists. With a key
@@ -77,6 +83,8 @@ requires equality. Registered rules:
 | `sig-golf/postgate/1` | record/1 kind postgate (parsed postgate output) | {n, passed (clone==worktree, std axioms, kernel accepts, okay, exit 0, ok true), trees sorted, axioms sorted} |
 | `sig-golf/claim-score/1` | record/1 kinds claim + check-submission | {S, W, C, score = S*C, check_ok, check_score, check_C} |
 | `sig-golf/k5-emu/1` | record/1 kind k5-emu (paired image runs: ok, same_sig_wit, same_hashes, delta, exits_v) | {n, ok, same_sig_wit, same_hashes, delta_set, exits_v} |
+| `flashprove/verify-tally/1` | record/1 kinds verify (an honest stored vector: verdict, exit, build, id, tokens) and altered (one altered copy: verdict, exit) | {n, honest, honest_yes (YES and exit 0), altered, altered_rejected (NO… and exit ≠ 0), builds sorted (the `build=` source digest cp_verify prints), ok = every honest YES, every altered rejected, one build} |
+| `flashprove/verify-rerun/1` | record/1 kind proven-reply (files: a map of relative path → blob κ for config/, ivk/, example.req, example.y, example.proof; id; expected verdict) | {n, reran, yes, refused, verdicts sorted, builds sorted, ok = every verdict equals its expected and one build}. **The verifier re-runs `cp_verify` on the sealed bytes**: it needs `FLASHPROVE_CP_VERIFY` (the verifier's path; on Windows `wsl -e /home/<user>/flashprove/bin/cp_verify`) and FAILS without it, as an unknown rule would Model: formal: proved formal_mage:Formal.ProvenLeaf.rerun_sound, formal: proved formal_mage:Formal.ProvenLeaf.rerun_refuses_without_verifier, formal: proved formal_mage:Formal.ProvenLeaf.rerun_detects_change (O19). |
 
 ### call/1 (one solver call, hashsmash r32)
 

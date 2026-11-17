@@ -21,6 +21,17 @@ def redact(s: str) -> str:
     return PRIVATE.sub("[redacted]", s)
 
 
+def resolve_prev(arg: str | None, prev_dir: str) -> str | None:
+    """--prev for a step minter: None (no link, the legacy shape), a root kappa as given, or "auto" for
+    root_kappa of the previous step's bundle at prev_dir (which must exist)."""
+    if arg is None:
+        return None
+    if arg != "auto":
+        return arg
+    with open(os.path.join(prev_dir, "root.json"), encoding="utf-8") as f:
+        return json.load(f)["root_kappa"]
+
+
 class Bundle:
     def __init__(self, lane: str, asserter: str):
         self.lane, self.asserter = lane, asserter
@@ -70,7 +81,7 @@ class Bundle:
         return k
 
     # -- root and output -----------------------------------------------------------
-    def root(self, composed: list[str], extra: dict | None = None) -> str:
+    def root(self, composed: list[str], extra: dict | None = None, prev: str | None = None) -> str:
         # a set, as every verifier reads it: a blob whose bytes equal an object's
         # or edge's dCBOR shares its κ, and a duplicate leaf would change the root
         leaves = sorted(set(self.objects) | set(self.blobs) | set(self.edges))
@@ -78,6 +89,12 @@ class Bundle:
         v = {0: f"{NS}/run-root/1", 1: self.lane, 2: date.today().isoformat(),
              3: [[n, k] for n, k in sorted(self.names.items())], 4: mroot, 5: K.STATUS,
              6: self.asserter, 7: K.UPSTREAM}
+        # run-root/1 field 9 (optional, SCHEMA.md): the previous step's root κ, the chain link that
+        # verify_chain.py checks. Absent unless given, so a root without it encodes exactly as before.
+        if prev is not None:
+            if not re.fullmatch(r"sha256:[0-9a-f]{64}", prev):
+                raise ValueError(f"prev must be a sha256 root kappa, got {prev!r}")
+            v[9] = prev
         # blake3 axis (KappaLabel::blake3): a dual label for every object, blob and edge, sealed in the
         # root; sha256 stays the identity and names every file (SCHEMA.md, run-root/1 field 8).
         b3 = {k: K.kappa_blake3_from_bytes(b) for k, b in self.blobs.items()}
