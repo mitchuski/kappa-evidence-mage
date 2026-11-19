@@ -1,8 +1,8 @@
-// touchstone.mages.city: The Touchstone, the κ evidence page and in-browser verifier. Static assets only, no code.
+// scry.mages.city: The Scrying Stone, the κ evidence page and in-browser verifier. Static assets only, no code.
 // Built by site/build.py. Deploy: npx wrangler deploy (from this folder).
 {
-  "name": "mages-city-touchstone",
+  "name": "mages-city-scry",
   "compatibility_date": "2026-08-01",
   "assets": { "directory": "./public", "html_handling": "auto-trailing-slash" },
-  "routes": [ { "pattern": "touchstone.mages.city", "custom_domain": true } ]
+  "routes": [ { "pattern": "scry.mages.city", "custom_domain": true } ]
 }

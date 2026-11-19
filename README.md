@@ -15,7 +15,7 @@ the verifier in this repository. One changed byte anywhere and the root no longe
 
 It is the evidence protocol of [agentprivacy](https://agentprivacy.ai) and the record layer
 of Proof of Agentic Work. **See a bundle and break it in your browser:
-[touchstone.mages.city](https://touchstone.mages.city).**
+[scry.mages.city](https://scry.mages.city).**
 
 ## Why use it
 
@@ -215,7 +215,7 @@ replies. Each reads a snapshot that is not distributed here; read them as exampl
 | [`test_kappa.py`](test_kappa.py), [`test_vector.json`](test_vector.json) | golden tests and the cross-implementation vector |
 | [`ipfs_cid.py`](ipfs_cid.py) | library function `build(bytes, chunk, raw)`: re-derives a UnixFS CIDv1 from file bytes, for evidence that is also pinned |
 | [`site_check/`](site_check) | Rust crate that re-derives a list of cited addresses with `kappa-core` |
-| [`site/`](site) | the project page at [touchstone.mages.city](https://touchstone.mages.city), with a verifier that runs in the browser |
+| [`site/`](site) | the project page at [scry.mages.city](https://scry.mages.city), with a verifier that runs in the browser |
 | `mint_*.py`, `verify_r32.py` | lane adapters, and the first lane-specific verifier |
 | [`docs/`](docs) | the Rust cross-check and working notes |
 | [`chronicles/`](chronicles) | the project's history, as it happened |
