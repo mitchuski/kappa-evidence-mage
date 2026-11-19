@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>κ evidence · the record behind Proof of Agentic Work</title>
-<meta name="description" content="κ evidence is the record layer of Proof of Agentic Work: every proposal, test and verdict an agent produces, failures included, named by the hash of its bytes and sealed under one root that anyone can re-derive. See a bundle and break it in your browser.">
+<title>The Touchstone · κ evidence, the record behind Proof of Agentic Work</title>
+<meta name="description" content="The Touchstone: strike a claim against its record and see if it holds. κ evidence is the record layer of Proof of Agentic Work: every proposal, test and verdict an agent produces, failures included, named by the hash of its bytes and sealed under one root that anyone can re-derive. See a bundle and break it in your browser.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
 :root{color-scheme:dark;--bg:#07090f;--panel:#0d1018;--line:#23252e;--ink:#d9d2c3;--soft:#bdb6a7;--dim:#8a867c;--faint:#3a3a40;--gold:#e8c873;--cyan:#9fd6db;--coral:#e5a49c;--green:#a9d6a0;
@@ -10,9 +10,10 @@ body{font:19px/1.6 var(--serif);background:radial-gradient(ellipse at 70% 0%,#11
 a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
 .wrap{max-width:1080px;margin:0 auto;padding:0 28px}
 nav{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:22px 0;font:12px var(--mono);letter-spacing:.06em;color:var(--dim)}
-nav .mark{color:var(--gold);font:italic 26px/1 var(--serif);letter-spacing:0}
+nav .mark{color:var(--gold);font:italic 26px/1 var(--serif);letter-spacing:0;white-space:nowrap}nav .mark:hover{text-decoration:none}nav .mark span{font:12px var(--mono);font-style:normal;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-left:8px;vertical-align:3px}
 nav .links{display:flex;gap:20px;flex-wrap:wrap;justify-content:flex-end}nav .links a{color:var(--dim)}nav .links a:hover{color:var(--cyan)}
-h1{font:400 clamp(40px,6.4vw,74px)/1.03 var(--serif);margin:52px 0 0;max-width:14em;text-wrap:balance}h1 em{color:var(--gold)}
+.kicker{font:11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:44px 0 0}
+h1{font:400 clamp(40px,6.4vw,74px)/1.03 var(--serif);margin:14px 0 0;max-width:14em;text-wrap:balance}h1 em{color:var(--gold)}
 .epi{font-style:italic;font-size:22px;line-height:1.5;color:var(--soft);max-width:35em;margin:22px 0 0;text-wrap:pretty}
 .cta{display:flex;gap:14px;flex-wrap:wrap;margin:32px 0 0}
 .btn{font:13px var(--mono);letter-spacing:.05em;padding:11px 18px;border-radius:24px;border:1px solid var(--faint);color:var(--ink);background:none;cursor:pointer}
@@ -110,10 +111,11 @@ footer{margin:72px 0 0;border-top:1px solid var(--line);padding:22px 0 90px;font
 @media(max-width:520px){#chain{grid-template-columns:1fr}#chain li{padding:0 0 22px}#chain li:last-child{padding-bottom:0}#chain li::after{display:none}#chain li.cut:not(:first-child)::before{left:14px;top:-20px}#chain .w{min-height:0}}
 </style></head><body><div class="wrap">
 
-<nav><a class="mark" href="/" aria-label="κ evidence">κ</a>
-<div class="links"><a href="#why">why</a><a href="#see">see it</a><a href="#chain-s">the chain</a><a href="#use">use it</a><a href="https://github.com/mitchuski/kappa-evidence-mage">github</a><a href="https://mages.city">mages.city</a></div></nav>
+<nav><a class="mark" href="/" aria-label="The Touchstone">κ <span>The Touchstone</span></a>
+<div class="links"><a href="#why">why</a><a href="#see">see it</a><a href="#chain-s">the chain</a><a href="#use">use it</a><a href="https://github.com/mitchuski/kappa-evidence-mage">github</a><a href="https://mages.city/trinkets.html">trinkets</a></div></nav>
 
 <header>
+<div class="kicker">A Mages City trinket · strike a claim against its record and see if it holds</div>
 <h1>The work behind the claim, sealed so anyone can <em>check</em> it.</h1>
 <p class="epi">An agent reports a result. κ evidence is everything that stands behind it: each proposal, test and verdict, the failures too, named by the hash of its own bytes and tied into one root. It is the record that Proof of Agentic Work is made of.</p>
 <div class="cta"><a class="btn gold" href="#see">See a bundle, then break it</a><a class="btn" href="#why">Why Proof of Agentic Work needs it</a></div>
@@ -248,7 +250,7 @@ python -c "import kappa as K; print(K.kappa_from_value({0: 'example/thing/1', 1:
 <blockquote>The decimal travels; the root stays. Whoever carries the measure carries the mint, and the mint remembers the hand that struck it.</blockquote>
 
 <footer>
-κ evidence is part of <a href="https://agentprivacy.ai">agentprivacy</a> and a district of <a href="https://mages.city">Mages City</a>.<br>
+The Touchstone is a <a href="https://mages.city/trinkets.html">trinket</a> of <a href="https://mages.city">Mages City</a>. κ evidence, the format it tests, is part of <a href="https://agentprivacy.ai">agentprivacy</a>.<br>
 Built on the κ labels of the <a href="https://github.com/UOR-Foundation/kappa-registry">UOR kappa-registry</a> and the deterministic CBOR of <a href="https://github.com/BlockchainCommons/bc-dcbor-rust">Blockchain Commons</a>, and byte-compatible with kappa-core at 2af8656.<br>
 Code MIT OR Apache-2.0 · documents CC BY 4.0 · <a href="https://github.com/mitchuski/kappa-evidence-mage">source</a> · <a href="https://github.com/mitchuski/kappa-evidence-mage/blob/main/SCHEMA.md">schema</a> · <a href="https://github.com/mitchuski/kappa-evidence-mage/blob/main/SECURITY.md">security</a>
 </footer>
