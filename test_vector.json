@@ -1,5 +1,5 @@
 {
- "status": "kappa-compatible (unverified)",
+ "status": "kappa-verified at 2af8656",
  "upstream": {
   "kappa-registry": "2af8656",
   "bc-dcbor-rust": "2e5b901 (branch feat/dcbor-derive)"

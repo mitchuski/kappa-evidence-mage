@@ -1,170 +1,290 @@
-# kappa_evidence_mage - kappa-addressed evidence ledgers for the dual-agent harness
+# κ evidence
 
-Its own mage since 2026-10-07 (named "kappa evidence mage" by the First Person; built that
-morning as `uor_kappa_mage/kappa_evidence/`, which still links here). It builds and proves
-one thing, and what it proves is shaped to merge into the solver mages (hashsmash_mage
-first, sig_mage next) rather than to live apart from them. The First Person's direction:
-the Yukon solver lanes are the first experiment, so idea -> implementation -> test fits
-inside the days of a leaderboard push. Lineage: uor_kappa_mage (the registry survey, notes
-01-06) supplies the vocabulary; the vendored clone `~/kappa-registry-main` @ 2af8656 is
-others' work, never edited.
+[![test](https://github.com/mitchuski/kappa-evidence-mage/actions/workflows/test.yml/badge.svg)](https://github.com/mitchuski/kappa-evidence-mage/actions/workflows/test.yml)
+![python](https://img.shields.io/badge/python-3.10%2B-blue)
+![dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)
+![licence](https://img.shields.io/badge/licence-MIT%20OR%20Apache--2.0-blue)
 
-The sig_mage analysis of the same day (agentprivacy-docs/research/
-2026-10-07_v7_openai_math_sig_mage.md, section 3) asks for one "reproducible optimization
-dossier" per lever: contract revision, candidate digest, formal statement and its
-dependencies, executable image digests, signature and witness budgets, charged cost, with
-empirical traces kept apart and failed candidates preserved. That dossier is this graph's
-shape exactly: each item an object with a kappa, `derived-from` edges to the candidate and
-the pinned contract, and killed levers that stay addressable. The sig_mage adapter maps the
-dossier fields onto objects here instead of inventing a second format.
+**Content-addressed evidence for agent work.**
 
-Source proposal: the hashsmash_mage research note of 2026-10-07 on a kappa evidence ledger
-(P0-P4 plan). This directory is P0 and the seam for P1.
+AI agents report what they did: tests passed, a benchmark scored this, a proof checked.
+κ evidence turns those reports into something a third party can re-derive. Every file, row,
+check and link a run produces is stored under the hash of its own bytes (its κ, "kappa") and
+tied into a single root. Anyone holding the bundle can recompute that root with SHA-256 and
+the verifier in this repository. One changed byte anywhere and the root no longer holds.
 
-## What is here
+It is the evidence protocol of [agentprivacy](https://agentprivacy.ai) and the record layer
+of Proof of Agentic Work. **See a bundle and break it in your browser:
+[kappa.mages.city](https://kappa.mages.city).**
 
-| file | role |
+## Why use it
+
+- **Verifiable by anyone, offline.** No service, no account, no network. A bundle and a
+  Python interpreter are enough.
+- **Facts are recomputed, not asserted.** Each stated fact names a published rule; the
+  verifier runs the rule over the sealed rows and requires the same bytes.
+- **Small enough to audit.** Pure Python 3, standard library only. The core, the minter and
+  the verifier are about a thousand lines.
+- **Interoperable.** Byte-compatible with the κ labels of the
+  [UOR kappa-registry](https://github.com/UOR-Foundation/kappa-registry), with independent
+  implementations in Python, JavaScript and Rust held equal on a fixed vector.
+- **Formally grounded.** The Merkle tree, inclusion proofs and the chain rule carry
+  machine-checked Lean 4 proofs ([`FORMAL.md`](FORMAL.md)).
+
+## Quick start
+
+Requires Python 3.10 or later. Nothing to install.
+
+```sh
+git clone https://github.com/mitchuski/kappa-evidence-mage
+cd kappa-evidence-mage
+
+python test_kappa.py                  # the encoder against upstream golden vectors
+python example_mint.py                # mint the smallest complete bundle into out/example
+python verify_bundle.py out/example   # re-derive it from its root
+```
+
+The verifier prints each step and exits 0 only if all of them pass:
+
+```
+re-hashed 6 objects, 1 blobs, 9 edges
+root sha256:... | status: kappa-verified at 2af8656 | lane example/readme
+blake3 axis: 13/13 dual labels recomputed
+composed-of walk reached 6 objects
+recomputed check rows/count/1 of steps: {"n": 3}
+merkle root over 13 leaves matches
+leak scan done
+RESULT: OK
+```
+
+Now append one byte to the file in `out/example/blobs/` and run the verifier again. The blob
+no longer hashes to its name, the rows lose their source, the Merkle root no longer matches,
+and the verifier exits 1.
+
+## Use it from code
+
+```python
+import kappa as K
+
+K.kappa_from_bytes(b"hello world")
+# 'sha256:b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9'
+
+K.kappa_from_value({0: "example/thing/1", 1: "hello", 2: 42})
+# 'sha256:f722f153dc94c9a09997b092070476a79e7f9c1ac4bd5d80cc887b680d6f4aa7'
+
+root = K.merkle_root([b"a", b"b", b"c"])
+proof = K.merkle_proof([b"a", b"b", b"c"], 1)
+K.merkle_verify(root, b"b", proof)        # True
+```
+
+Minting a bundle ([`example_mint.py`](example_mint.py) is the complete version):
+
+```python
+import bundle as B
+
+b = B.Bundle("my-project/run-42", "unsigned:my-project")
+log = b.put_blob(open("results.csv", "rb").read(), "results.csv")
+rows = [b.record(i, "step", {"tool": t, "exit": 0}, log) for i, t in enumerate(["build", "test"])]
+ledger = b.ledger("steps", "tool runs read from results.csv", rows)
+b.check("steps-count", ledger, "rows/count/1", {"n": len(rows)})
+b.root(["steps", "steps-count"])
+b.write("out/run-42", ["Run 42."])
+```
+
+## Command line
+
+| command | what it does |
 |---|---|
-| `kappa.py` | canonical dCBOR + SHA-256 mirroring kappa-core @ 2af8656 and bc-dcbor-rust @ 2e5b901; Edge records; anchor input; merkle |
-| `test_kappa.py` | golden tests: every expected byte copied from the upstream test suites (33 encode vectors + blob kappa + merkle + edge shape) |
-| `mint_r32.py` | mints the r32 search ledger into a bundle under `out/r32/` |
-| `verify_r32.py` | re-derives the r32 bundle from its root alone: hashes, canonical form, composed-of walk, totals, merkle, leak scan |
-| `bundle.py` | shared minting helper (objects, blobs, typed edges, ledgers, checks, run root, bundle on disk) |
-| `mint_sig_h2.py` | the sig_mage adapter: H2 gate rows, images, patch report -> `out/sig_h2_b96b3ca/` |
-| `verify_bundle.py` | lane-neutral verifier for any bundle (recomputes summary/1 and check/1 facts by rule name; checks images against their layout hashes) |
-| `input/sig_h2_b96b3ca/` | read-only snapshot from the sig_mage lead, SHA256SUMS checked |
-| `PROVERB.md` | the prophecy proverb, its kappa, and the rule for where it goes |
-| `2026-10-07_note_to_uor_collaborator.md` | send-ready note to the UOR contact (the First Person sends) |
-| `make_test_vector.py` / `test_vector.json` | the fixed cross-implementation vector for P1 |
-| `P1_RUST_CHECK.md` | how to run the Rust side of that check (scratch crate; the clone stays untouched) |
-| `SCHEMA.md` | the object schemas with their permanent integer keys |
-| `input/r32/` | read-only snapshot (chmod 444) of the seat's exported ledger rows and the v5 package files, hashes in `input/r32_SHA256SUMS.txt` |
-| `out/r32/` | the minted bundle: 68 objects, 4 blobs, 201 edges, `root.json`, `graph.json`, `REPORT.md` |
+| `python verify_bundle.py <bundle>` | verify one bundle against its own root |
+| `python verify_chain.py <bundle> <bundle> ...` | verify an ordered chain of bundles and every link between them (`--expect-head <κ>` pins the head) |
+| `python example_mint.py [out_dir]` | mint the example bundle |
+| `python make_test_vector.py` | regenerate the cross-implementation vector |
 
-## Status of every kappa: "kappa-compatible (unverified)"
+## How it works
 
-The Python encoder passes the upstream library's own vectors, so the primitives are right.
-What is NOT yet proven is equality with `kappa_from_value` as compiled, for the struct
-shapes (Edge, AnchorInput, our call maps). That is P1, a cargo run after WSL frees. Until
-then no kappa here should be cited as a registry kappa.
+**A κ is a typed hash.** `kappa_from_bytes(b)` is `"sha256:" + hex(SHA-256(b))`.
+`kappa_from_value(v)` is the same over the deterministic CBOR
+([dCBOR](https://github.com/BlockchainCommons/bc-dcbor-rust)) encoding of `v`, so a
+structured object has exactly one byte form and therefore one name.
 
-## What P0 established (2026-10-07)
+**A bundle is a small graph** in three flat directories, where every file name is the κ of
+the file's content:
 
-- The r32 search ledger reconciles exactly: 57 exported rows + 5 cal/manual rows = 62;
-  minus the two starting-solution runs and the superseded zero-CPU ERROR row = 59 calls,
-  593,858.32 CPU-s, peak RSS 5,510,088 KiB. These are the figures in R32_LOG.md and the v5
-  claim, now recomputed by a verifier that sees only the bundle.
-- Run root: see `out/r32/REPORT.md`. Tampering one byte of one call object fails four
-  independent checks (name hash, composed-of walk, ledger listing, merkle root).
-- Finding F-E1: the upstream derive encodes `Vec<u8>` fields (Edge.metadata, the anchor's
-  public_key) through dcbor's generic `From<Vec<T>>` (src/array.rs:46), i.e. as an ARRAY of
-  unsigned integers, not a byte string. An independent implementation that uses a byte
-  string would compute different anchors and edge kappas. Mirrored here; flagged for the
-  upstream notes.
-- Finding F-E2: `Option` fields that are None are omitted from the map, not encoded as null
-  (dcbor-derive/src/lib.rs:10). Also mirrored.
-- Finding F-E3: upstream main is still 2af8656 (checked 2026-10-07 with ls-remote); the
-  vendored clone is current.
+```
+<bundle>/objects/<hex>.cbor   structured objects, canonical dCBOR
+<bundle>/blobs/<hex>.bin      raw bytes: logs, source files, images, proofs
+<bundle>/edges/<hex>.cbor     typed links between κ's (composed-of, derived-from,
+                              evidence-provenance, section-of, refers-to)
+<bundle>/root.json            the root κ and counts, for tools (metadata, not hashed)
+<bundle>/graph.json           everything decoded, for readers
+<bundle>/REPORT.md
+```
 
-## sig_mage next: the H2 gate evidence minted (2026-10-07, afternoon)
+**The core shapes are few.** Each shape is registered in [`SCHEMA.md`](SCHEMA.md) before any
+bundle uses it.
 
-The sig_mage lead session exported a read-only snapshot of the H2 emulator-gate evidence for
-record b96b3ca (23 files, SHA256SUMS all checked, leak-scanned clean) and this mage minted it
-through the same code: `bundle.py` (shared helper) + `mint_sig_h2.py` (the adapter) +
-`verify_bundle.py` (lane-neutral; also re-verifies the r32 bundle). Bundle at
-`out/sig_h2_b96b3ca/`: 67 objects, 17 blobs, 139 edges; gate rows as `record/1` objects in
-four ledgers (24 honest, 2 exhaust, 28 tamper, 2 cross) each with a `check/1` the verifier
-recomputes from the rows (24/24 ok, witness_equal 24/24, verify delta max 0, sign delta
-cycles {1048}, extra_compr == c; tamper 28/28 and cross 2/2 rejected); the eight base and
-eight H2 program images as blobs with `derived-from` edges H2 -> base image + patch report.
+| object | what it holds |
+|---|---|
+| `record/1` | one row of evidence, with an `evidence-provenance` edge to the blob it was read from |
+| `ledger/1` | an ordered list of rows |
+| `check/1` | facts about a ledger under a named rule; the verifier recomputes them from the rows and requires equality |
+| `run-root/1` | the root: every named object, a Merkle root over every κ in the bundle, the status label, the asserter, the upstream pins, and optionally the previous root |
 
-- Finding F-E4 (a stale constant, caught by the verifier): `images_h2/layout.json` declares
-  the BASE sha256 and instruction counts for sign and expand, while the H2 image bytes are
-  19 and 64 words longer, exactly the patch sizes. The images are right; the layout file
-  was not regenerated after the patch. The verifier FAILS the images check on those two
-  entries; reported to the lead session, which confirmed the cause (the patch generator
-  copied the base layout through and rewrote only signatureBytes, across all seven H2
-  image dirs; nothing downstream read those fields), fixed the generator, regenerated and
-  re-exported. RE-MINTED on the re-export the same afternoon: the images check passes and the
-  bundle verifies clean. New run root sha256:8c5209a6fb73...; the stale-snapshot root
-  sha256:f8e5f72bc229... is superseded, kept on record, not cited.
-- The lead's harness task card (agentprivacy-docs/plans/KAPPA_EVIDENCE_HARNESS_TASK_2026-10-07.md)
-  asks for two things beyond P0: an `Evidence root: sha256:...` line in submission notes,
-  and a constants-refuter seat that re-reads a record's constants at the named commit
-  before a build. The second is what the images check already does for hashes and sizes;
-  generalising it to the other constants is the next adapter step.
+**Verification trusts nothing but the hash.** The verifier re-hashes every file against its
+name, requires objects to re-encode byte-identically, walks `composed-of` from the root to
+every ledger and check, requires every row to point at a blob that is present, recomputes
+every `check/1` from its rows, recomputes the Merkle root, and scans for private paths and
+host names.
 
-## Harness integration (2026-10-07, evening)
+**Roots chain.** A run root may name the root before it. The chain verifier checks every
+bundle and every link, so the head root commits to the whole history behind it.
 
-The agentprivacy dual-agent harness (`~/dual-agent-harness`, uncommitted there; the First Person
-commits) now carries the registry axis natively: `tools/dcbor.mjs` is an independent JS
-implementation of this encoder, `tools/kappa_evidence.mjs` mints a run's record into the same
-bundle layout (`mint | verify | root`, optional `--sign` with an ephemeral ed25519 key whose
-registry anchor becomes the edges' asserter), and `tools/check.mjs` runs the 61-check test and
-verifies every minted bundle on each gate run. The two encoders agree on the fixed struct vector
-(`test_vector.json`), and `verify_bundle.py` here accepts the JS-minted harness bundle
-(rule `harness/run-tally/1`). That is a two-implementation agreement, not the P1 cargo check.
-Also in the harness: an `Evidence root:` section in the chronicle template, a
-`seats/constants-refuter.md` seat card, and a HOLONS.md section on the two axes.
+**A κ can carry more than one label.** SHA-256 is the identity and names every file. Each
+bundle also seals a BLAKE3 label for every object, blob and edge (the registry's
+`KappaLabel::blake3` axis), recomputed by the verifier. An Orchard Poseidon axis
+(`poseidon-orchard-chain/1`) is available where a circuit-friendly label is needed.
 
-Leak-scan pattern aligned across both implementations: user paths (drive-letter and POSIX),
-home dirs and host names; not bare names, since public handles appear legitimately in content.
+**Signing is optional and separate.** Without a key, the asserter is a placeholder
+(`unsigned:<lane>`) and the bundle is an offline record. With a key, the asserter is the
+registry anchor of the public key and `root.json` carries an ed25519 signature over the root
+κ. The signature is metadata and is never part of a hashed preimage. Signing is implemented
+in the [JavaScript twin](https://github.com/mitchuski/agentprivacy-harness); the Python
+verifier reports a signature when present and does not check it.
 
-## What changed in how kappa is used (2026-10-08), and what this mage now carries
+## What a root tells you, and what it does not
 
-- **A twin implementation.** `tools/dcbor.mjs` in the harness is an independent JS encoder;
-  the two agree on the fixed struct vector (`test_vector.json`, embedded in the harness test).
-  Two encoders agreeing is not the P1 cargo check, but it means a byte-level mistake in one
-  would have shown as a disagreement, and none did.
-- **More shapes.** `SCHEMA.md` is the registry: record/1 (generic rows), check/1 with a rule
-  table, images/1, the three harness objects, sources/1 (prose behind a kappa), transform/1 (a
-  reader bound to its evidence root). A new shape is written there before a bundle uses it.
-- **More minters, elsewhere.** The harness mints runs (`tools/kappa_evidence.mjs`, 34 runs
-  minted); the demos repo mints sources, rows and the demos root (`tools/mint_sources.mjs`,
-  `mint_rows.mjs`, `mint_demos.mjs`, `pair.mjs`). This mage keeps the Python mirror, the two
-  lane adapters (r32, sig H2), the schema registry and the verifier that reads every bundle
-  the others produce.
-- **Verifier parity.** `verify_bundle.py` now also checks harness-gap seeds against their canon
-  blob kappa and images against their layout hashes, and reports a root signature when present
-  (ed25519 itself is checked by the harness verifier only; no third-party packages here).
-- **Clone safety, F-E5 and F-E6.** A kappa'd blob must survive `git clone`: bundle directories are
-  marked `-text` in `.gitattributes`, and text is hashed as git stores it (LF, redacted).
-  Without that, a Windows checkout with newline conversion rewrites every blob and every
-  verify fails; found and fixed in both public repos. Separately, the harness has a
-  177-character tracked path, so Windows clones need `core.longpaths`.
-- **The pair is an object.** transform/1 binds a reader's kappa to the evidence root it was
-  generated from and the generator's kappa; sixteen pairs sit under the demos root
-  `sha256:ad4e115f...`. The transformation creates the pair, as the First Person put it.
+A verified root tells you that the bundle is complete and unaltered, that every row traces
+to sealed source bytes, and that every stated fact follows from those rows under a published
+rule.
 
-Public homes: this mage at github.com/mitchuski/kappa-evidence-mage; the harness tools at
-github.com/mitchuski/agentprivacy-harness; the readers and pairs at
-github.com/mitchuski/agentprivacy-harness-demos. `out/` and `input/` stay local here.
+It does not tell you that the source bytes were honestly produced. A log sealed in a bundle
+is exactly the log that was sealed, whoever wrote it. Rules can close that gap where the
+work allows it: `flashprove/verify-rerun/1`, for example, re-runs a proof verifier on the
+sealed proof bytes, so its facts are recomputed truth and not a recorded verdict.
 
-## Boundaries
+Other limits:
 
-- Windows only, no WSL (the r32 blind route search owns it). No cargo on this side.
-- The vendored clone `~/kappa-registry-main` is never edited. The dcbor derive source was
-  cloned into the session scratchpad for reading only.
-- Pushed 2026-10-08 (public). uor_kappa_mage still holds the uncommitted links to this sibling.
-- Private paths and hosts are scanned out of every object; the inputs were clean already.
-- No asserter key exists at P0: edges carry a placeholder asserter and are offline records.
+- "κ-verified at 2af8656" means byte equality with `kappa-core` at that commit on the
+  shapes used here. It does not mean an object is registered with any registry.
+- The Merkle root in `run-root/1` is labelled provisional: it follows the upstream leaf and
+  node rule but is computed locally, with no registry inclusion proof.
+- An unsigned bundle carries no authorship. Only a signed root binds a key to the work.
 
-## Merge path into the solver mages
+## Assurance
 
-Each solver mage gets a thin `mint_<lane>.py` that maps its own ledger rows onto call/1 and
-calls `kappa.py`; the verifier is lane-neutral already. The package then carries three
-things the judge can run inside its sandbox: the bundle, `verify_<lane>.py` with `kappa.py`,
-and the root kappa quoted in proof.md. For sig_mage the rows are the sigmage gate ledger;
-for hashsmash the blind route search ledger (`ledger_route.jsonl`) joins the same root when
-it lands (P3).
+| what | how | result |
+|---|---|---|
+| dCBOR encoder, blob κ, Merkle, edge shape | [`test_kappa.py`](test_kappa.py): expected bytes copied from the upstream test suites; runs in CI | 0 failures |
+| equality with `kappa-core` as compiled | a Rust crate calling `kappa_from_value` on a fixed vector ([`docs/rust-cross-check/`](docs/rust-cross-check)) | 10 of 10 lines identical |
+| a second implementation | the harness's independent JavaScript encoder and verifier, held to [`test_vector.json`](test_vector.json) | agrees on every vector |
+| published addresses, re-derived in Rust | [`site_check/`](site_check): decode, re-encode, re-hash, Merkle and chain walk with `kappa-core` over every κ cited on agentprivacy.org | 188 addresses, 4,213 checks, 0 failures |
+| BLAKE3 axis | pure-Python BLAKE3 against the official vectors | pass |
+| Poseidon axis | [`test_poseidon_axis.py`](test_poseidon_axis.py) against the HashSmash organizer reference (needs a local clone of it) | pass |
+| Merkle root, inclusion proofs, chain head | Lean 4 theorems, kernel-checked and axiom-audited ([`FORMAL.md`](FORMAL.md)) | proved |
 
-## Next
+The Rust results are recorded runs from October 2026; their outputs are in the repository.
 
-- P1 (after WSL frees): run `P1_RUST_CHECK.md`; flip the label; add the signed namespace
-  root and inclusion proofs from a local registry.
-- Then decide whether the v7 r32 note cites the ledger kappa and the root.
+## Sealing your own work
+
+A *lane* is any body of work that wants its evidence sealed: an agent run, a benchmark
+submission, a proof audit, a set of documents. It needs one thin adapter.
+
+1. Snapshot the lane's files read-only under `input/<name>/`.
+2. Write `mint_<lane>.py`: put each source file as a blob, each row as a `record/1`, group
+   rows into ledgers, state the facts as `check/1` objects, then call `root()` and `write()`.
+3. If the facts need a new rule, add the rule to `verify_bundle.py` and its row in
+   `SCHEMA.md` first. A verifier that meets an unknown rule fails.
+4. Run `python verify_bundle.py out/<name>`, then quote the root wherever the work is cited:
+   `Evidence root: sha256:...`
+
+The `mint_*.py` files in this repository are working adapters from production use, covering
+cryptanalysis benchmarks, circuit optimisation, formal proof audits and verifiable-inference
+replies. Each reads a snapshot that is not distributed here; read them as examples of shape.
+
+## Repository layout
+
+| path | role |
+|---|---|
+| [`kappa.py`](kappa.py) | the core: dCBOR encode and decode, κ from bytes and from values, edge records, anchors, Merkle root and proofs, the BLAKE3 and Poseidon axes |
+| [`bundle.py`](bundle.py) | minting helper: objects, blobs, edges, ledgers, checks, the run root, the bundle on disk |
+| [`verify_bundle.py`](verify_bundle.py) | lane-neutral verifier for one bundle, with the rule table |
+| [`verify_chain.py`](verify_chain.py) | verifier for an ordered chain of bundles |
+| [`example_mint.py`](example_mint.py) | the smallest complete bundle |
+| [`SCHEMA.md`](SCHEMA.md) | the registry of object shapes, their permanent integer keys, and the rules |
+| [`FORMAL.md`](FORMAL.md) | which claims about this code are proved in Lean, and where |
+| [`test_kappa.py`](test_kappa.py), [`test_vector.json`](test_vector.json) | golden tests and the cross-implementation vector |
+| [`ipfs_cid.py`](ipfs_cid.py) | library function `build(bytes, chunk, raw)`: re-derives a UnixFS CIDv1 from file bytes, for evidence that is also pinned |
+| [`site_check/`](site_check) | Rust crate that re-derives a list of cited addresses with `kappa-core` |
+| [`site/`](site) | the project page at [kappa.mages.city](https://kappa.mages.city), with a verifier that runs in the browser |
+| `mint_*.py`, `verify_r32.py` | lane adapters, and the first lane-specific verifier |
+| [`docs/`](docs) | the Rust cross-check and working notes |
+| [`chronicles/`](chronicles) | the project's history, as it happened |
+
+`out/` (minted bundles) and `input/` (lane snapshots) are local and not tracked. Public
+bundles are published with the work they seal.
+
+## Who uses it
+
+- [agentprivacy-harness](https://github.com/mitchuski/agentprivacy-harness): the JavaScript
+  twin (`tools/dcbor.mjs`, `tools/kappa_evidence.mjs` with `mint | verify | chain | root`
+  and `--sign`). Every harness run is minted, and every gate run re-verifies the bundles.
+- [agentprivacy-harness-demos](https://github.com/mitchuski/agentprivacy-harness-demos):
+  readers bound to the evidence root they were generated from.
+- [trust-tasks-formal](https://github.com/mitchuski/trust-tasks-formal) and
+  [poc_mage](https://github.com/mitchuski/poc_mage): formal-proof evidence published as
+  bundles beside the proofs.
+- [mages.city](https://mages.city) and the
+  [agentprivacy.org record](https://agentprivacy.org/harness/record/): pages that show the
+  chain of roots behind a body of work.
+
+## Notes for implementers
+
+Anyone writing another encoder will meet these. Each was found by a disagreement between
+implementations or a failed verification.
+
+- **`Vec<u8>` is an array, not a byte string.** The upstream derive encodes `Vec<u8>`
+  fields (`Edge.metadata`, the anchor's `public_key`) as a CBOR array of unsigned integers.
+  An encoder that uses a byte string computes different edge and anchor κ's.
+- **`None` is omitted, not null.** Optional fields that are absent do not appear in the map.
+- **The status label is inside the root.** It is field 5 of `run-root/1`, so changing the
+  label is a re-mint with a new root κ. The Merkle root over the leaves is unchanged.
+- **The mint date is inside the root too.** The same content minted on two days gives two
+  roots with one Merkle root.
+- **The leaf set is a set.** A blob whose bytes equal an object's encoding shares its κ, and
+  a duplicated leaf would change the root. Minters and verifiers de-duplicate before
+  hashing; the Lean proofs show why this is necessary.
+- **Bundles must survive `git clone`.** Mark bundle directories `-text` in `.gitattributes`
+  and hash text as git stores it (LF). Otherwise a checkout with newline conversion rewrites
+  every blob and every verification fails.
+- **Integer keys are permanent.** Changing a key number changes every κ minted since.
+
+## Stability
+
+Object shapes are versioned in their names (`record/1`, `run-root/1`) and their integer keys
+never change; a breaking change is a new shape with a new number, and new fields are
+optional so that older objects encode exactly as before. The code is pinned to `kappa-core`
+at `2af8656` and `bc-dcbor-rust` at `2e5b901`. The pin is part of the status label sealed in
+every root, so a move to a newer upstream commit is visible in the bundles themselves.
+
+## Contributing and security
+
+Contributions are welcome: see [`CONTRIBUTING.md`](CONTRIBUTING.md). To report a case where
+the verifier accepts something it should refuse, see [`SECURITY.md`](SECURITY.md).
+
+## Credits
+
+κ labels, edge records and the Merkle rule are the design of the
+[UOR kappa-registry](https://github.com/UOR-Foundation/kappa-registry). Deterministic CBOR
+is the work of [Blockchain Commons](https://github.com/BlockchainCommons/bc-dcbor-rust).
+`kappa.py` is an independent re-implementation that cites the source lines it mirrors. This
+repository vendors no upstream code and patches none; pins, licences and the provenance of
+the Poseidon constants are in [`NOTICE.md`](NOTICE.md). The evidence shapes, the dual label
+axes, the minters and the verifiers are this repository's own work.
+
+> The decimal travels; the root stays. Whoever carries the measure carries the mint, and the
+> mint remembers the hand that struck it. ([`PROVERB.md`](PROVERB.md))
 
 ## Licence
 
-Code MIT OR Apache-2.0 (`LICENSE.md`, `LICENSE-APACHE`), documents CC BY 4.0. Upstream rules, data and code this repository
-mirrors, copies or tests against keep their own licences (`NOTICE.md`).
+Code is MIT OR Apache-2.0 ([`LICENSE.md`](LICENSE.md), [`LICENSE-APACHE`](LICENSE-APACHE)).
+Documents are CC BY 4.0. Upstream material keeps its own licence ([`NOTICE.md`](NOTICE.md)).

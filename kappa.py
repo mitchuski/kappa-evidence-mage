@@ -21,8 +21,8 @@ Pure Python 3, no third-party packages. Mirrors, line for line where it matters:
   Merkle               = leaf 0x00 || data, node 0x01 || l || r, odd leaf hashed with
                          itself, SHA-256                                     merkle.rs:10-67
 
-Status label for every value produced here until P1 runs the Rust crate's own test:
-    "kappa-compatible (unverified)".
+Status label for every value produced here, since the Rust crate's own check passed:
+    "kappa-verified at 2af8656" (was "kappa-compatible (unverified)" before that run passed).
 """
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ import os
 import struct
 import unicodedata
 
-STATUS = "kappa-verified at 2af8656"  # P1 passed 2026-10-08 (P1_RESULT.md); was "kappa-compatible (unverified)"
+STATUS = "kappa-verified at 2af8656"  # P1 passed 2026-10-08 (docs/rust-cross-check/RESULT.md); was "kappa-compatible (unverified)"
 UPSTREAM = {"kappa-registry": "2af8656", "bc-dcbor-rust": "2e5b901 (branch feat/dcbor-derive)"}
 
 # ---------------------------------------------------------------- dCBOR encoding

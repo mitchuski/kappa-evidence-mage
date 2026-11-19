@@ -1,0 +1,8 @@
+// kappa.mages.city: the κ evidence page. Static assets only, no code.
+// Built by site/build.py. Deploy: npx wrangler deploy (from this folder).
+{
+  "name": "mages-city-kappa",
+  "compatibility_date": "2026-08-01",
+  "assets": { "directory": "./public", "html_handling": "auto-trailing-slash" },
+  "routes": [ { "pattern": "kappa.mages.city", "custom_domain": true } ]
+}

@@ -1,0 +1,33 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.10", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Golden vectors
+        run: python test_kappa.py
+      - name: Cross-implementation vector is unchanged
+        run: |
+          python make_test_vector.py
+          git diff --exit-code test_vector.json
+      - name: Mint and verify the example bundle
+        run: |
+          python example_mint.py
+          python verify_bundle.py out/example

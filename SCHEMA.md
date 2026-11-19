@@ -29,7 +29,9 @@ Rules every bundle obeys:
 - text that becomes a blob is hashed as git stores it: LF line endings, user paths and host
   names redacted (`[redacted]`), and the bundle directory is marked `-text` in
   `.gitattributes` so a checkout never rewrites the bytes;
-- every kappa is labelled `kappa-compatible (unverified)` until the P1 cargo check.
+- every kappa carries the status label of the encoder that minted it (run-root/1 field 5):
+  `kappa-verified at 2af8656` since the Rust cross-check passed on 2026-10-08 (`docs/rust-cross-check/RESULT.md`),
+  `kappa-compatible (unverified)` on bundles minted before it.
 
 ## Objects
 

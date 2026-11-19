@@ -1,6 +1,6 @@
-"""make_test_vector.py - the fixed cross-implementation vector for P1 (see P1_RUST_CHECK.md).
+"""make_test_vector.py - the fixed cross-implementation vector for P1 (see docs/rust-cross-check/).
 Every expected value is produced by kappa.py and must equal what kappa-core @ 2af8656 computes
-for the same inputs. Until that run, each is "kappa-compatible (unverified)"."""
+for the same inputs. That run passed on 2026-10-08 (docs/rust-cross-check/RESULT.md)."""
 import json
 import kappa as K
 

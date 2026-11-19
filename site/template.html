@@ -1,0 +1,404 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>κ evidence · the record behind Proof of Agentic Work</title>
+<meta name="description" content="κ evidence is the record layer of Proof of Agentic Work: every proposal, test and verdict an agent produces, failures included, named by the hash of its bytes and sealed under one root that anyone can re-derive. See a bundle and break it in your browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#07090f;--panel:#0d1018;--line:#23252e;--ink:#d9d2c3;--soft:#bdb6a7;--dim:#8a867c;--faint:#3a3a40;--gold:#e8c873;--cyan:#9fd6db;--coral:#e5a49c;--green:#a9d6a0;
+--serif:"Cormorant Garamond",Georgia,serif;--mono:ui-monospace,Menlo,Consolas,monospace}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink)}html{scroll-behavior:smooth}
+body{font:19px/1.6 var(--serif);background:radial-gradient(ellipse at 70% 0%,#11131d 0,var(--bg) 60%) fixed}
+a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+nav{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:22px 0;font:12px var(--mono);letter-spacing:.06em;color:var(--dim)}
+nav .mark{color:var(--gold);font:italic 26px/1 var(--serif);letter-spacing:0}
+nav .links{display:flex;gap:20px;flex-wrap:wrap;justify-content:flex-end}nav .links a{color:var(--dim)}nav .links a:hover{color:var(--cyan)}
+h1{font:400 clamp(40px,6.4vw,74px)/1.03 var(--serif);margin:52px 0 0;max-width:14em;text-wrap:balance}h1 em{color:var(--gold)}
+.epi{font-style:italic;font-size:22px;line-height:1.5;color:var(--soft);max-width:35em;margin:22px 0 0;text-wrap:pretty}
+.cta{display:flex;gap:14px;flex-wrap:wrap;margin:32px 0 0}
+.btn{font:13px var(--mono);letter-spacing:.05em;padding:11px 18px;border-radius:24px;border:1px solid var(--faint);color:var(--ink);background:none;cursor:pointer}
+.btn:hover{border-color:var(--gold);color:var(--gold);text-decoration:none}.btn.gold{border-color:var(--gold);color:var(--gold)}
+section{margin:96px 0 0}
+.eyebrow{font:11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim);border-top:1px solid var(--line);padding-top:18px}
+h2{font:400 clamp(30px,4.2vw,44px)/1.1 var(--serif);margin:14px 0 10px;max-width:20em;text-wrap:balance}
+.lede{color:var(--soft);max-width:39em;margin:0 0 26px;text-wrap:pretty}.lede b{color:var(--ink);font-weight:500}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:22px;min-width:0}
+label,.lab{display:block;font:11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:0 0 8px}
+textarea,input[type=text]{width:100%;background:#080a11;color:var(--ink);border:1px solid var(--faint);border-radius:6px;padding:12px;font:14px/1.5 var(--mono);resize:vertical}
+textarea:focus,input:focus,button:focus-visible,[tabindex]:focus-visible{outline:1px solid var(--gold);outline-offset:2px}
+.kout{font:13.5px/1.6 var(--mono);color:var(--gold);overflow-wrap:anywhere;margin:14px 0 0;min-height:2.6em}.kout span{color:var(--dim)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.live{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:22px;align-items:start}
+
+/* why: what PoAW asks, what κ gives */
+.asks{list-style:none;margin:0;padding:0}
+.asks li{display:grid;grid-template-columns:2.6em minmax(0,.9fr) minmax(0,1.1fr);gap:8px 26px;border-top:1px solid var(--line);padding:22px 0;align-items:start}
+.asks .n{font:400 38px/1 var(--serif);color:var(--gold)}
+.asks h3{font:500 24px/1.2 var(--serif);margin:0;text-wrap:balance}
+.asks p{margin:0;color:var(--soft);text-wrap:pretty}
+.asks .tag{display:block;font:11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:0 0 6px}
+
+/* bundle graph */
+#graph{display:block;width:100%;height:auto}
+#graph .edge{stroke:var(--faint);stroke-width:1.4;fill:none;transition:stroke .3s}
+#graph .edge.prov{stroke-dasharray:5 4}#graph .edge.der{stroke-dasharray:1.5 4;stroke-linecap:round}
+#graph .edge.hit{stroke:var(--coral)}
+#graph .node{cursor:pointer}
+#graph .node rect{fill:#0a0d15;stroke:#3d404b;stroke-width:1.2;transition:stroke .3s,fill .3s}
+#graph .node .t{font:500 16px var(--serif);fill:var(--ink)}
+#graph .node .k{font:11px var(--mono);fill:var(--dim);transition:fill .3s}
+#graph .node.root rect{stroke:var(--gold)}#graph .node.root .k{fill:var(--gold)}
+#graph .node:hover rect,#graph .node.sel rect{fill:#141826}
+#graph .node.sel rect{stroke-width:2}
+#graph .node.hit rect{stroke:var(--coral);stroke-dasharray:4 3}#graph .node.hit .k{fill:var(--coral)}
+#graph .node.bad rect{stroke:var(--coral);fill:#2a1616;stroke-dasharray:none}#graph .node.bad .k{fill:var(--coral)}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font:11.5px var(--mono);color:var(--dim);margin:6px 0 0}
+.legend i{display:inline-block;width:26px;border-top:1.5px solid var(--dim);vertical-align:middle;margin-right:7px}
+.legend i.prov{border-top-style:dashed}.legend i.der{border-top-style:dotted}
+.legend .sw{display:inline-block;width:11px;height:11px;border-radius:3px;border:1.5px solid var(--coral);vertical-align:-1px;margin-right:7px}.legend .sw.f{background:#2a1616}.legend .sw.d{border-style:dashed}
+#detail{margin:16px 0 0;border-top:1px solid var(--line);padding-top:14px;font:12.5px/1.6 var(--mono);color:var(--soft);overflow-wrap:anywhere;min-height:8.5em}
+#detail b{color:var(--gold);font-weight:400}#detail .w{color:var(--ink);font:500 20px/1.2 var(--serif);display:block;margin-bottom:4px}
+#detail pre{background:none;border:0;padding:0;margin:8px 0 0;font:12px/1.55 var(--mono);color:var(--soft);white-space:pre-wrap;overflow-wrap:anywhere}
+
+.ctl{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding:12px 0;font:13px var(--mono);color:var(--soft)}
+.seg{display:inline-flex;border:1px solid var(--faint);border-radius:18px;overflow:hidden;flex:none}
+.seg button{background:none;border:0;color:var(--dim);font:12px var(--mono);padding:6px 13px;cursor:pointer}.seg button.on{background:#1a1c26;color:var(--gold)}
+#steps{list-style:none;margin:16px 0 0;padding:0;font:12.5px/1.55 var(--mono)}
+#steps li{display:grid;grid-template-columns:3.2em 1fr;gap:6px;padding:7px 0;border-top:1px solid var(--line);color:var(--soft);overflow-wrap:anywhere}
+#steps .t{color:var(--green)}#steps li.bad{color:var(--ink)}#steps li.bad .t{color:var(--coral)}
+#verdict{font:500 30px/1 var(--serif);margin:18px 0 0}#verdict.ok{color:var(--green)}#verdict.bad{color:var(--coral)}
+#verdict small{display:block;font:12px/1.5 var(--mono);color:var(--dim);margin-top:8px;letter-spacing:.02em}
+.note{font:12px/1.6 var(--mono);color:var(--dim);margin:16px 0 0;max-width:70em}
+
+/* chain */
+#chain{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:0;padding:0;list-style:none}
+#chain li{position:relative;padding:0 26px 0 0}
+#chain li:last-child{padding-right:0}
+#chain .card{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:16px;transition:border-color .3s;height:100%}
+#chain li:not(:last-child)::after{content:"";position:absolute;right:4px;top:50%;width:18px;border-top:1.5px solid var(--faint);transition:border-color .3s}
+#chain li.cut:not(:first-child)::before{content:"✕";position:absolute;left:-21px;top:calc(50% - 11px);font:14px var(--mono);color:var(--coral);z-index:1}
+#chain li.cut .card{border-color:var(--coral)}
+#chain li.edited .card{border-color:var(--coral);background:#1c1214}
+#chain .s{font:11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+#chain .w{font:500 21px/1.25 var(--serif);margin:6px 0 10px;min-height:2.5em}
+#chain .pill{display:inline-block;font:11.5px var(--mono);border-radius:12px;padding:3px 10px;border:1px solid}
+#chain .pill.acc{color:var(--green);border-color:#4c6b4a}#chain .pill.ref{color:var(--coral);border-color:#7a4a46}
+#chain dl{margin:12px 0 0;font:11.5px/1.7 var(--mono);color:var(--dim)}#chain dt{float:left;width:3.2em}#chain dd{margin:0;color:var(--soft)}
+#chain dd.root{color:var(--gold)}#chain li.cut dd.prev{color:var(--coral)}
+.headline{display:flex;gap:10px 30px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin:22px 0 0;font:12.5px/1.7 var(--mono);color:var(--soft)}
+.headline b{font-weight:400;color:var(--gold)}#headnow.bad{color:var(--coral)}#headnow.ok{color:var(--green)}
+
+.rows{margin:0;padding:0;list-style:none}
+.rows li{display:grid;grid-template-columns:3.2em 1fr;gap:10px;border-top:1px solid var(--line);padding:22px 0}
+.rows .n{font:400 40px/1 var(--serif);color:var(--gold)}
+.rows h3{font:500 24px/1.2 var(--serif);margin:0 0 6px}.rows p{margin:0;color:var(--soft);max-width:36em;text-wrap:pretty}
+code{font:.74em var(--mono);color:var(--cyan);overflow-wrap:anywhere}
+pre.code{background:#080a11;border:1px solid var(--line);border-radius:8px;padding:18px;overflow-x:auto;font:13.5px/1.7 var(--mono);color:var(--ink);margin:0}pre.code .c{color:var(--dim)}
+.two h3{font:500 24px/1.2 var(--serif);margin:0 0 10px}.two ul{margin:0;padding-left:1.1em;color:var(--soft)}.two li{margin:0 0 8px}
+.yes h3{color:var(--green)}.no h3{color:var(--coral)}
+table{width:100%;border-collapse:collapse;font-size:17px}
+th{font:11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-align:left;font-weight:400;padding:0 14px 10px 0}
+td{border-top:1px solid var(--line);padding:13px 14px 13px 0;vertical-align:top;color:var(--soft)}td:first-child{color:var(--ink)}td:last-child{font:13px/1.9 var(--mono);color:var(--green);white-space:nowrap;padding-right:0}
+.tw{overflow-x:auto}
+.used{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.used a{display:block;border:1px solid var(--line);border-radius:10px;padding:18px;color:var(--soft)}.used a:hover{border-color:var(--gold);text-decoration:none}
+.used b{display:block;font:13px var(--mono);color:var(--cyan);font-weight:400;margin-bottom:6px;overflow-wrap:anywhere}
+blockquote{margin:96px 0 0;font:italic clamp(22px,3vw,30px)/1.4 var(--serif);color:var(--soft);max-width:28em;border-left:1px solid var(--gold);padding-left:22px;text-wrap:balance}
+footer{margin:72px 0 0;border-top:1px solid var(--line);padding:22px 0 90px;font:12.5px/1.9 var(--mono);color:var(--dim)}
+@media(max-width:900px){.live{grid-template-columns:1fr}#chain{grid-template-columns:1fr 1fr;row-gap:22px}#chain li:nth-child(2){padding-right:0}#chain li:nth-child(2)::after{display:none}}
+@media(max-width:760px){body{font-size:18px}.wrap{padding:0 16px}.grid2{grid-template-columns:1fr}section{margin-top:72px}td:last-child{white-space:normal}nav .links{gap:14px}
+.rows li{grid-template-columns:2.4em 1fr}.rows .n{font-size:32px}.asks li{grid-template-columns:2.2em 1fr}.asks .n{font-size:30px;grid-row:span 2}.panel{padding:16px}}
+@media(max-width:520px){#chain{grid-template-columns:1fr}#chain li{padding:0 0 22px}#chain li:last-child{padding-bottom:0}#chain li::after{display:none}#chain li.cut:not(:first-child)::before{left:14px;top:-20px}#chain .w{min-height:0}}
+</style></head><body><div class="wrap">
+
+<nav><a class="mark" href="/" aria-label="κ evidence">κ</a>
+<div class="links"><a href="#why">why</a><a href="#see">see it</a><a href="#chain-s">the chain</a><a href="#use">use it</a><a href="https://github.com/mitchuski/kappa-evidence-mage">github</a><a href="https://mages.city">mages.city</a></div></nav>
+
+<header>
+<h1>The work behind the claim, sealed so anyone can <em>check</em> it.</h1>
+<p class="epi">An agent reports a result. κ evidence is everything that stands behind it: each proposal, test and verdict, the failures too, named by the hash of its own bytes and tied into one root. It is the record that Proof of Agentic Work is made of.</p>
+<div class="cta"><a class="btn gold" href="#see">See a bundle, then break it</a><a class="btn" href="#why">Why Proof of Agentic Work needs it</a></div>
+</header>
+
+<section id="why">
+<div class="eyebrow">Why we use it</div>
+<h2>Proof of Agentic Work needs a record that cannot be tidied afterwards.</h2>
+<p class="lede">When agents do research, what travels is the headline: a score, a bound, a sentence saying it worked. The attempts that failed, the tests that were run and the order things happened in stay behind with whoever ran the agents. <b>Proof of Agentic Work (PoAW)</b> is our discipline for publishing the work itself, in a form a stranger can re-derive. It asks five things of its record. Each one is a property of this format.</p>
+<ul class="asks">
+<li><span class="n">1</span><div><span class="tag">PoAW asks</span><h3>A stranger can check it, with no one's permission.</h3></div><div><span class="tag">κ evidence gives</span><p>Everything is named by the hash of its bytes. Verifying needs the bundle and SHA-256: no service, no account, nobody to ask.</p></div></li>
+<li><span class="n">2</span><div><span class="tag">PoAW asks</span><h3>Claims are recomputed, not believed.</h3></div><div><span class="tag">κ evidence gives</span><p>A stated fact names a published rule. The verifier runs the rule over the sealed rows and requires the same answer, byte for byte.</p></div></li>
+<li><span class="n">3</span><div><span class="tag">PoAW asks</span><h3>Failures stay on the record.</h3></div><div><span class="tag">κ evidence gives</span><p>A refuted attempt is a leaf like any other. The root commits to it, and the next root commits to that root, so it cannot be dropped later without breaking every root after it.</p></div></li>
+<li><span class="n">4</span><div><span class="tag">PoAW asks</span><h3>A proposer does not choose its own tests.</h3></div><div><span class="tag">κ evidence gives</span><p>A proposal is sealed first. The tests it faces are drawn from its κ, and the draw is itself a record in the bundle that the verifier checks against the proposal.</p></div></li>
+<li><span class="n">5</span><div><span class="tag">PoAW asks</span><h3>The root comes before the claim.</h3></div><div><span class="tag">κ evidence gives</span><p>A bundle is minted and verified before the result is submitted, and the submission quotes the root. The number may be copied anywhere. The root says where it came from.</p></div></li>
+</ul>
+<p class="note">The PoAW paper is forthcoming. Everything on this page is the evidence layer it runs on, which is open and running today.</p>
+</section>
+
+<section id="see">
+<div class="eyebrow">See it</div>
+<h2>One bundle, drawn as it is. Now change something.</h2>
+<p class="lede">This is the example bundle from the repository: a source file, three rows read from it, a ledger, a check and a root. Select a node to read it. Then alter the work and watch where the damage goes: it always reaches the root.</p>
+<div class="live">
+<div class="panel">
+<svg id="graph" viewBox="2 14 502 388" role="group" aria-label="The example bundle as a graph: a root over a ledger and a check, three rows under the ledger, and one source file under the rows"></svg>
+<div class="legend"><span><i></i>composed of</span><span><i class="prov"></i>read from</span><span><i class="der"></i>derived from</span><span><span class="sw f"></span>altered</span><span><span class="sw d"></span>no longer supported</span></div>
+<div id="detail" aria-live="polite"></div>
+</div>
+<div class="panel">
+<label for="src">Edit the sealed source file</label>
+<textarea id="src" rows="5" spellcheck="false"></textarea>
+<div style="margin-top:10px">
+<div class="ctl"><span>Row 1 says the test step exited with</span><span class="seg" id="rowseg" role="group" aria-label="row exit code"><button data-v="0">0</button><button data-v="1">1</button></span></div>
+<div class="ctl"><span>The check states the ledger has</span><span class="seg" id="chkseg" role="group" aria-label="stated row count"><button data-v="3">3 rows</button><button data-v="4">4 rows</button></span></div>
+</div>
+<ul id="steps" aria-live="polite"></ul>
+<div id="verdict"></div>
+<div class="cta" style="margin-top:18px"><button class="btn" id="restore">Restore the original</button></div>
+</div>
+</div>
+<p class="note">The verifier runs on this page with Web Crypto; nothing leaves it. It follows the reference procedure: re-hash every item, walk the links, recompute the check, recompute the Merkle root. The reference verifier also recomputes a BLAKE3 label for every item and scans for private paths, which this page leaves out.</p>
+</section>
+
+<section id="chain-s">
+<div class="eyebrow">The chain</div>
+<h2>Each root names the one before. That is what keeps a failure in the story.</h2>
+<p class="lede">A line of research is a chain of bundles. Here are four steps of one, with an attempt at step 2 that was refuted. Suppose someone later prefers that it had never happened, and rewrites it.</p>
+<div class="panel">
+<ol id="chain"></ol>
+<div class="headline"><span>head root quoted when the work was published <b id="headq"></b></span><span id="headnow" aria-live="polite"></span></div>
+<div class="cta" style="margin-top:18px"><button class="btn gold" id="rewrite">Rewrite step 2 as accepted</button></div>
+</div>
+<p class="note">A sketch with real hashes: each root here is the κ of a small object holding the step, its verdict and the previous root. A real step is a full bundle like the one above, and the chain verifier checks every bundle as well as every link.</p>
+</section>
+
+<section id="how">
+<div class="eyebrow">How it works</div>
+<h2>A κ is the name a thing gives itself.</h2>
+<p class="lede">Type anything. Its κ is computed here from the bytes alone. Nobody assigns it, and nobody can assign the same one to different bytes.</p>
+<div class="panel" style="margin-bottom:34px">
+<label for="kin">Any text</label>
+<input id="kin" type="text" value="hello world" spellcheck="false" autocomplete="off">
+<div class="kout" id="kout" aria-live="polite"></div>
+</div>
+<ul class="rows">
+<li><span class="n">1</span><div><h3>Everything is named by its bytes</h3><p>A file is stored under <code>sha256:</code> of its content. A structured object is first written in deterministic CBOR, which gives it exactly one byte form, and is then named the same way.</p></div></li>
+<li><span class="n">2</span><div><h3>Every row points at its source</h3><p>A row of evidence carries a typed link to the sealed file it was read from. A row with no source in the bundle does not verify.</p></div></li>
+<li><span class="n">3</span><div><h3>Every fact is recomputed</h3><p>A fact that the verifier cannot recompute from sealed bytes under a published rule is not accepted. An unknown rule fails.</p></div></li>
+<li><span class="n">4</span><div><h3>One root seals the run, and roots chain</h3><p>The root commits to every name in the bundle through a Merkle tree, and may name the root before it. Quoting one root is quoting the whole history behind it.</p></div></li>
+</ul>
+</section>
+
+<section>
+<div class="eyebrow">Stated plainly</div>
+<h2>What a root proves, and what it does not.</h2>
+<div class="grid2 two">
+<div class="panel yes"><h3>It tells you</h3><ul>
+<li>The record is complete and unaltered since it was sealed.</li>
+<li>Every row traces to sealed source bytes.</li>
+<li>Every stated fact follows from those rows under a published rule.</li>
+<li>With a signed root, which key stands behind it.</li></ul></div>
+<div class="panel no"><h3>It does not tell you</h3><ul>
+<li>That the source bytes were honestly produced. A sealed log is exactly the log that was sealed.</li>
+<li>That an unsigned bundle has an author.</li>
+<li>That anything is registered with a registry.</li></ul></div>
+</div>
+<p class="lede" style="margin-top:22px">Rules can close the first gap where the work allows it. A rule may re-run a proof verifier on the sealed proof, so its fact is recomputed truth and not a recorded verdict.</p>
+</section>
+
+<section>
+<div class="eyebrow">Assurance</div>
+<h2>How the format itself is checked.</h2>
+<div class="tw"><table>
+<tr><th>What</th><th>How</th><th>Result</th></tr>
+<tr><td>The encoder, hashing and Merkle tree</td><td>Golden vectors copied from the upstream test suites</td><td>0 failures</td></tr>
+<tr><td>Equality with the registry's Rust core</td><td><code>kappa-core</code> itself, run on a fixed vector</td><td>10 of 10 identical</td></tr>
+<tr><td>Three independent implementations</td><td>Python, JavaScript and Rust held to the same vector</td><td>agree</td></tr>
+<tr><td>Every address cited on agentprivacy.org</td><td>Re-derived in Rust: decode, re-encode, re-hash, walk</td><td>4,213 checks, 0 failures</td></tr>
+<tr><td>Merkle root, inclusion proofs, chain head</td><td>Lean 4 theorems, kernel-checked and axiom-audited</td><td>proved</td></tr>
+</table></div>
+</section>
+
+<section id="use">
+<div class="eyebrow">Use it</div>
+<h2>Python 3. No packages.</h2>
+<p class="lede">The core, the minter and the verifier run on the standard library alone, so everything a verification depends on can be read in an afternoon.</p>
+<pre class="code"><span class="c"># get it</span>
+git clone https://github.com/mitchuski/kappa-evidence-mage
+cd kappa-evidence-mage
+
+<span class="c"># mint the example bundle, then re-derive it from its root</span>
+python example_mint.py
+python verify_bundle.py out/example
+
+<span class="c"># or from your own code</span>
+python -c "import kappa as K; print(K.kappa_from_value({0: 'example/thing/1', 1: 'hello'}))"</pre>
+<p class="lede" style="margin-top:22px">To seal your own work, write one thin adapter: put each source file as a blob, each row as a record, state the facts as checks, and call the root. The example is the whole pattern in thirty lines.</p>
+</section>
+
+<section>
+<div class="eyebrow">In use</div>
+<h2>Where the roots are.</h2>
+<div class="used">
+<a href="https://github.com/mitchuski/agentprivacy-harness"><b>agentprivacy-harness</b>The dual-agent harness mints a bundle for every run and re-verifies them at every gate, with an independent JavaScript implementation.</a>
+<a href="https://github.com/mitchuski/trust-tasks-formal"><b>trust-tasks-formal</b>Formal proofs published with the evidence bundle that seals their audit.</a>
+<a href="https://mages.city"><b>mages.city scrolls</b>Pages written as nothing but the hashes of a body of work, each one checkable.</a>
+<a href="https://agentprivacy.org/harness/record/"><b>agentprivacy.org record</b>The research record, cited by root.</a>
+</div>
+</section>
+
+<blockquote>The decimal travels; the root stays. Whoever carries the measure carries the mint, and the mint remembers the hand that struck it.</blockquote>
+
+<footer>
+κ evidence is part of <a href="https://agentprivacy.ai">agentprivacy</a> and a district of <a href="https://mages.city">Mages City</a>.<br>
+Built on the κ labels of the <a href="https://github.com/UOR-Foundation/kappa-registry">UOR kappa-registry</a> and the deterministic CBOR of <a href="https://github.com/BlockchainCommons/bc-dcbor-rust">Blockchain Commons</a>, and byte-compatible with kappa-core at 2af8656.<br>
+Code MIT OR Apache-2.0 · documents CC BY 4.0 · <a href="https://github.com/mitchuski/kappa-evidence-mage">source</a> · <a href="https://github.com/mitchuski/kappa-evidence-mage/blob/main/SCHEMA.md">schema</a> · <a href="https://github.com/mitchuski/kappa-evidence-mage/blob/main/SECURITY.md">security</a>
+</footer>
+</div>
+
+<script>
+/*CORE*/
+const BUNDLE = /*BUNDLE*/;
+
+// ---- page ----
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+const short = k => k.replace('sha256:', '').slice(0, 8);
+
+// κ field
+async function showKappa() {
+  const t = $('kin').value;
+  const kb = await kappa(enc.encode(t)), kv = await kappa(encode(t));
+  $('kout').innerHTML = `<span>as raw bytes &nbsp;</span>${kb}<br><span>as a text value </span>${kv}`;
+}
+$('kin').addEventListener('input', showKappa);
+
+// the bundle, and the edits applied to it
+const original = () => ({
+  objects: Object.fromEntries(Object.entries(BUNDLE.objects).map(([k, v]) => [k, unhex(v)])),
+  edges: Object.fromEntries(Object.entries(BUNDLE.edges).map(([k, v]) => [k, unhex(v)])),
+  blob: { name: BUNDLE.blob.name, bytes: enc.encode(BUNDLE.blob.text) }, root: BUNDLE.root });
+const state = { exit: 0, n: 3 };
+function current() {
+  const B = original();
+  B.blob.bytes = enc.encode($('src').value);
+  for (const [name, bytes] of Object.entries(B.objects)) {
+    const v = decode(bytes), schema = v.get(0);
+    if (schema.endsWith('/record/1') && v.get(3).get('tool') === 'test' && state.exit !== 0) { v.get(3).set('exit', state.exit); B.objects[name] = encode(v); }
+    if (schema.endsWith('/check/1') && state.n !== 3) { v.get(3).set('n', state.n); B.objects[name] = encode(v); }
+  }
+  return B;
+}
+
+// graph: nodes and links read from the sealed bundle itself
+const G = (() => {
+  const O = Object.fromEntries(Object.entries(BUNDLE.objects).map(([k, v]) => ['sha256:' + k, decode(unhex(v))]));
+  const find = suffix => Object.keys(O).find(k => O[k].get(0).endsWith(suffix));
+  const ledger = find('/ledger/1'), check = find('/check/1'), rows = O[ledger].get(2), blob = 'sha256:' + BUNDLE.blob.name;
+  const nodes = [
+    { id: BUNDLE.root, x: 280, y: 44, cls: 'root', title: 'run root', what: 'The root. It names the ledger and the check, and holds a Merkle root over every κ in the bundle.' },
+    { id: ledger, x: 190, y: 152, title: 'ledger · steps', what: 'The ledger: the ordered list of rows.' },
+    { id: check, x: 440, y: 152, title: 'check · row count', what: 'A stated fact with its rule. The verifier recomputes it from the ledger.' },
+    ...rows.map((r, i) => ({ id: r, x: 66 + i * 124, y: 262, title: `row ${O[r].get(1)} · ${O[r].get(3).get('tool')}`, what: 'One row of evidence, read from the source file.' })),
+    { id: blob, x: 190, y: 372, title: 'source.csv', what: 'The sealed source file, stored as raw bytes.' }];
+  const rel = { 1: '', 11: 'der', 13: 'prov' };
+  const edges = Object.values(BUNDLE.edges).map(h => decode(unhex(h))).map(e => ({ s: e.get(0), t: e.get(1), cls: rel[e.get(2)] }));
+  return { nodes, edges, O, pos: Object.fromEntries(nodes.map(n => [n.id, n])) };
+})();
+const NW = 118, NH = 48;
+let selected = BUNDLE.root, lastB = null;
+
+function drawGraph() {
+  const line = e => { const a = G.pos[e.s], b = G.pos[e.t]; if (!a || !b) return '';
+    const side = Math.abs(a.y - b.y) < 1;       // check -> ledger runs sideways
+    const p = side ? `M${a.x - NW / 2},${a.y}L${b.x + NW / 2},${b.y}` : `M${a.x},${a.y + NH / 2}L${b.x},${b.y - NH / 2}`;
+    return `<path class="edge ${e.cls}" data-t="${e.t}" d="${p}"/>`; };
+  $('graph').innerHTML = G.edges.map(line).join('') + G.nodes.map(n =>
+    `<g class="node ${n.cls || ''}" data-id="${n.id}" tabindex="0" role="button" aria-label="${esc(n.title)}">` +
+    `<rect x="${n.x - NW / 2}" y="${n.y - NH / 2}" width="${NW}" height="${NH}" rx="8"/>` +
+    `<text class="t" x="${n.x}" y="${n.y - 3}" text-anchor="middle">${esc(n.title)}</text>` +
+    `<text class="k" x="${n.x}" y="${n.y + 14}" text-anchor="middle">${short(n.id)}…</text></g>`).join('');
+}
+function fmt(v, depth = 0) {
+  const pad = '  '.repeat(depth + 1);
+  if (v instanceof Map) {
+    if (depth > 0 && v.size > 4) return `{ … ${v.size} entries }`;
+    return '{\n' + [...v].map(([k, x]) => `${pad}${typeof k === 'string' ? JSON.stringify(k) : k}: ${fmt(x, depth + 1)}`).join(',\n') + '\n' + '  '.repeat(depth) + '}';
+  }
+  if (Array.isArray(v)) return v.length > 4 || v.some(x => typeof x !== 'string') ? '[' + v.map(x => fmt(x, depth + 1)).join(', ') + ']' : '[\n' + v.map(x => pad + fmt(x, depth + 1)).join(',\n') + '\n' + '  '.repeat(depth) + ']';
+  if (typeof v === 'string') return JSON.stringify(v.startsWith('sha256:') ? 'sha256:' + short(v) + '…' : v);
+  return String(v);
+}
+async function showDetail() {
+  const n = G.pos[selected], B = lastB || original(), name = selected.replace('sha256:', '');
+  const isBlob = name === BUNDLE.blob.name, bytes = isBlob ? B.blob.bytes : B.objects[name];
+  const now = await kappa(bytes), ok = now === selected;
+  let body; try { body = isBlob ? dec.decode(bytes) : fmt(decode(bytes)); } catch (e) { body = '(not decodable)'; }
+  $('detail').innerHTML = `<span class="w">${esc(n.title)}</span>${esc(n.what)}<br>name &nbsp;<b>${selected}</b>` +
+    (ok ? '' : `<br><span style="color:var(--coral)">bytes now hash to ${now}</span>`) + `<pre>${esc(body)}</pre>`;
+}
+function paint(r) {
+  const bad = new Set(r.badNames), state = {};
+  const out = id => G.edges.filter(e => e.s === id).map(e => e.t);
+  const hit = id => state[id] ?? (state[id] = bad.has(id) ? 'bad' : out(id).some(t => hit(t) !== 'ok') ? 'hit' : 'ok');
+  G.nodes.forEach(n => hit(n.id));
+  if (!r.mOk && state[BUNDLE.root] === 'ok') state[BUNDLE.root] = 'hit';
+  for (const g of $('graph').querySelectorAll('.node')) {
+    g.classList.toggle('bad', state[g.dataset.id] === 'bad'); g.classList.toggle('hit', state[g.dataset.id] === 'hit'); g.classList.toggle('sel', g.dataset.id === selected);
+  }
+  for (const p of $('graph').querySelectorAll('.edge')) p.classList.toggle('hit', state[p.dataset.t] !== 'ok');
+}
+let run = 0;
+async function refresh() {
+  const mine = ++run, B = current(), r = await verifyBundle(B);
+  if (mine !== run) return;
+  lastB = B; paint(r); showDetail();
+  $('steps').innerHTML = r.steps.map(s => `<li class="${s.ok ? '' : 'bad'}"><span class="t">${s.ok ? 'ok' : 'FAIL'}</span><span>${esc(s.text)}</span></li>`).join('');
+  const v = $('verdict'); v.className = r.ok ? 'ok' : 'bad';
+  v.innerHTML = r.ok ? `Verified<small>${esc(r.status)} · lane ${esc(r.lane)}</small>`
+    : `Refused<small>The root no longer describes these bytes.</small>`;
+  for (const [seg, key] of [['rowseg', 'exit'], ['chkseg', 'n']])
+    for (const b of $(seg).children) { const on = +b.dataset.v === state[key]; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); }
+}
+const pick = e => { const g = e.target.closest('.node'); if (!g) return; selected = g.dataset.id; for (const x of $('graph').querySelectorAll('.node')) x.classList.toggle('sel', x === g); showDetail(); };
+$('graph').addEventListener('click', pick);
+$('graph').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(e); } });
+for (const [seg, key] of [['rowseg', 'exit'], ['chkseg', 'n']])
+  $(seg).addEventListener('click', e => { if (e.target.dataset.v !== undefined) { state[key] = +e.target.dataset.v; refresh(); } });
+$('src').addEventListener('input', refresh);
+$('restore').addEventListener('click', () => { $('src').value = BUNDLE.blob.text; state.exit = 0; state.n = 3; refresh(); });
+
+// chain: four steps, each root the κ of {step, work, verdict, previous root}
+const STEPS = [['First route proposed', 'accepted'], ['A shortcut is tried', 'refuted'], ['Route repaired without it', 'accepted'], ['Result submitted', 'accepted']];
+let rewritten = false, sealed = null;
+async function chainRoots(steps) {
+  const roots = []; let prev = null;
+  for (const [i, [work, verdict]] of steps.entries()) {
+    const m = new Map([[0, 'sketch/step/1'], [1, i + 1], [2, work], [3, verdict]]); if (prev) m.set(9, prev);
+    prev = await kappa(encode(m)); roots.push(prev);
+  }
+  return roots;
+}
+async function drawChain() {
+  sealed = sealed || await chainRoots(STEPS);
+  const steps = STEPS.map((s, i) => i === 1 && rewritten ? [s[0], 'accepted'] : s);
+  // the later steps were sealed already: they still carry the previous root they were minted with
+  const mine = (await chainRoots(steps.slice(0, 2)))[1];
+  $('chain').innerHTML = steps.map(([work, verdict], i) => {
+    const root = i === 1 ? mine : sealed[i], prev = i ? sealed[i - 1] : null;
+    const cut = rewritten && i === 2, edited = rewritten && i === 1;
+    return `<li class="${cut ? 'cut' : ''} ${edited ? 'edited' : ''}"><div class="card"><div class="s">step ${i + 1}</div><div class="w">${esc(work)}</div>` +
+      `<span class="pill ${verdict === 'accepted' ? 'acc' : 'ref'}">${verdict}</span>` +
+      `<dl><dt>prev</dt><dd class="prev">${prev ? short(prev) + '…' + (cut ? ' ≠ step 2' : '') : 'none'}</dd><dt>root</dt><dd class="root">${short(root)}…</dd></dl></div></li>`;
+  }).join('');
+  $('headq').textContent = short(sealed[3]) + '…';
+  const h = $('headnow'); h.className = rewritten ? 'bad' : 'ok';
+  h.textContent = rewritten ? `Chain refused: step 3 names ${short(sealed[1])}…, but step 2 is now ${short(mine)}…. Re-minting steps 3 and 4 to match would change the head, and the head was already published.`
+    : 'Chain verifies: every step names the root before it, and the head is the one that was quoted.';
+  $('rewrite').textContent = rewritten ? 'Put the refuted attempt back' : 'Rewrite step 2 as accepted';
+}
+$('rewrite').addEventListener('click', () => { rewritten = !rewritten; drawChain(); });
+
+$('src').value = BUNDLE.blob.text;
+if (window.crypto && crypto.subtle) { drawGraph(); showKappa(); refresh(); drawChain(); }
+else { $('kout').textContent = 'This browser does not expose Web Crypto here (it needs https or localhost).'; $('verdict').textContent = 'Verifier unavailable'; }
+</script>
+</body></html>
