@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "kappa evidence: content-addressed evidence for agent work"
+type: software
+authors:
+  - family-names: Travers
+    given-names: Mitchell
+    affiliation: 0xagentprivacy
+repository-code: "https://github.com/mitchuski/kappa-evidence-mage"
+url: "https://scry.mages.city"
+license: "MIT OR Apache-2.0"
+keywords:
+  - content addressing
+  - verifiable evidence
+  - AI agents
+  - dCBOR
+  - Merkle tree

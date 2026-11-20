@@ -14,8 +14,11 @@ tied into a single root. Anyone holding the bundle can recompute that root with 
 the verifier in this repository. One changed byte anywhere and the root no longer holds.
 
 It is the evidence protocol of [agentprivacy](https://agentprivacy.ai) and the record layer
-of Proof of Agentic Work. **See a bundle and break it in your browser:
-[scry.mages.city](https://scry.mages.city).**
+of Proof of Agentic Work.
+
+**See a bundle and break it in your browser: [The Scrying Stone](https://scry.mages.city).**
+The page draws a real bundle as a graph, lets you alter the work, and runs the verifier
+locally to show where the damage goes.
 
 ## Why use it
 
@@ -29,7 +32,28 @@ of Proof of Agentic Work. **See a bundle and break it in your browser:
   [UOR kappa-registry](https://github.com/UOR-Foundation/kappa-registry), with independent
   implementations in Python, JavaScript and Rust held equal on a fixed vector.
 - **Formally grounded.** The Merkle tree, inclusion proofs and the chain rule carry
-  machine-checked Lean 4 proofs ([`FORMAL.md`](FORMAL.md)).
+  machine-checked Lean 4 proofs ([`FORMAL.md`](FORMAL.md) lists the theorems and the root
+  that seals their audit, shown on the [formal scroll](https://formal.mages.city); the proof
+  sources are not yet public).
+
+## Why Proof of Agentic Work uses it
+
+When agents do research, what travels is the headline: a score, a bound, a sentence saying
+it worked. The failed attempts, the tests that were run and the order things happened in
+stay with whoever ran the agents. Proof of Agentic Work (PoAW) is a discipline for
+publishing the work itself in a form a stranger can re-derive. It asks five things of its
+record, and each is a property of this format.
+
+| PoAW asks | κ evidence gives |
+|---|---|
+| A stranger can check it, with no one's permission. | Everything is named by the hash of its bytes. Verifying needs the bundle and SHA-256. |
+| Claims are recomputed, not believed. | A stated fact names a published rule. The verifier runs the rule over the sealed rows and requires the same bytes. |
+| Failures stay on the record. | A refuted attempt is a leaf like any other. The root commits to it and the next root commits to that root, so dropping it later breaks every root after it. |
+| A proposer does not choose its own tests. | A proposal is sealed first. The tests it faces are drawn from its κ, and the draw is a record the verifier checks against the proposal. |
+| The root comes before the claim. | A bundle is minted and verified before a result is submitted, and the submission quotes the root. |
+
+The PoAW paper is forthcoming. This repository is the evidence layer it runs on, which is
+open and in use today.
 
 ## Quick start
 
@@ -180,7 +204,7 @@ Other limits:
 | published addresses, re-derived in Rust | [`site_check/`](site_check): decode, re-encode, re-hash, Merkle and chain walk with `kappa-core` over every κ cited on agentprivacy.org | 188 addresses, 4,213 checks, 0 failures |
 | BLAKE3 axis | pure-Python BLAKE3 against the official vectors | pass |
 | Poseidon axis | [`test_poseidon_axis.py`](test_poseidon_axis.py) against the HashSmash organizer reference (needs a local clone of it) | pass |
-| Merkle root, inclusion proofs, chain head | Lean 4 theorems, kernel-checked and axiom-audited ([`FORMAL.md`](FORMAL.md)) | proved |
+| Merkle root, inclusion proofs, chain head | Lean 4 theorems, kernel-checked and axiom-audited ([`FORMAL.md`](FORMAL.md)); sources not yet public, audit sealed by root | proved |
 
 The Rust results are recorded runs from October 2026; their outputs are in the repository.
 
@@ -190,14 +214,14 @@ A *lane* is any body of work that wants its evidence sealed: an agent run, a ben
 submission, a proof audit, a set of documents. It needs one thin adapter.
 
 1. Snapshot the lane's files read-only under `input/<name>/`.
-2. Write `mint_<lane>.py`: put each source file as a blob, each row as a `record/1`, group
+2. Write `lanes/mint_<lane>.py`: put each source file as a blob, each row as a `record/1`, group
    rows into ledgers, state the facts as `check/1` objects, then call `root()` and `write()`.
 3. If the facts need a new rule, add the rule to `verify_bundle.py` and its row in
    `SCHEMA.md` first. A verifier that meets an unknown rule fails.
 4. Run `python verify_bundle.py out/<name>`, then quote the root wherever the work is cited:
    `Evidence root: sha256:...`
 
-The `mint_*.py` files in this repository are working adapters from production use, covering
+The adapters in [`lanes/`](lanes) are working ones from production use, covering
 cryptanalysis benchmarks, circuit optimisation, formal proof audits and verifiable-inference
 replies. Each reads a snapshot that is not distributed here; read them as examples of shape.
 
@@ -215,9 +239,10 @@ replies. Each reads a snapshot that is not distributed here; read them as exampl
 | [`test_kappa.py`](test_kappa.py), [`test_vector.json`](test_vector.json) | golden tests and the cross-implementation vector |
 | [`ipfs_cid.py`](ipfs_cid.py) | library function `build(bytes, chunk, raw)`: re-derives a UnixFS CIDv1 from file bytes, for evidence that is also pinned |
 | [`site_check/`](site_check) | Rust crate that re-derives a list of cited addresses with `kappa-core` |
-| [`site/`](site) | the project page at [scry.mages.city](https://scry.mages.city), with a verifier that runs in the browser |
-| `mint_*.py`, `verify_r32.py` | lane adapters, and the first lane-specific verifier |
-| [`docs/`](docs) | the Rust cross-check and working notes |
+| [`site/`](site) | The Scrying Stone, the project page at [scry.mages.city](https://scry.mages.city), with a verifier that runs in the browser; CI rebuilds it and fails if the published page is stale |
+| [`lanes/`](lanes) | lane adapters (`mint_*.py`) from production use, and the first lane-specific verifier |
+| [`docs/`](docs) | the Rust cross-check: method, scripts and recorded output |
+| [`CITATION.cff`](CITATION.cff) | how to cite the software |
 | [`chronicles/`](chronicles) | the project's history, as it happened |
 
 `out/` (minted bundles) and `input/` (lane snapshots) are local and not tracked. Public
@@ -230,12 +255,13 @@ bundles are published with the work they seal.
   and `--sign`). Every harness run is minted, and every gate run re-verifies the bundles.
 - [agentprivacy-harness-demos](https://github.com/mitchuski/agentprivacy-harness-demos):
   readers bound to the evidence root they were generated from.
-- [trust-tasks-formal](https://github.com/mitchuski/trust-tasks-formal) and
-  [poc_mage](https://github.com/mitchuski/poc_mage): formal-proof evidence published as
-  bundles beside the proofs.
-- [mages.city](https://mages.city) and the
-  [agentprivacy.org record](https://agentprivacy.org/harness/record/): pages that show the
-  chain of roots behind a body of work.
+- [trust-tasks-formal](https://github.com/mitchuski/trust-tasks-formal): formal proofs
+  published with the evidence bundle that seals their audit.
+- [poc_mage](https://github.com/mitchuski/poc_mage): a standards contribution with every
+  claim checked against pinned sources and sealed in a bundle.
+- [mages.city](https://mages.city) scrolls and the
+  [agentprivacy.org record](https://agentprivacy.org/harness/record/): pages written as the
+  hashes of a body of work, each one checkable, showing the chain of roots behind it.
 
 ## Notes for implementers
 

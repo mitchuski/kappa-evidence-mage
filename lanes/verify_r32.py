@@ -14,6 +14,7 @@ Sees ONLY the bundle directory. Checks, in order:
 Prints the recomputed headline numbers. Exit 0 on success, 1 on any failure.
 """
 from __future__ import annotations
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # repository root
 
 import json
 import os
@@ -153,4 +154,4 @@ def main(bundle: str) -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(__file__), "out", "r32")))
+    sys.exit(main(sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "out", "r32")))

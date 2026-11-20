@@ -8,11 +8,12 @@ Output: out/sig_letter_levers/. Then: python verify_bundle.py out/sig_letter_lev
 Lever leaves are the record/1 objects named lever:E8, lever:C1, lever:trim, lever:filter.
 """
 from __future__ import annotations
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # repository root
 import hashlib, json, os, shutil, sys
 import kappa as K
 from bundle import Bundle, redact
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 IN = os.path.join(HERE, "input", "sig_letter_levers")
 OUT = os.path.join(HERE, "out", "sig_letter_levers")
 SM = os.path.join(os.path.expanduser("~"), "sig_mage", "sigmage").replace("\\", "/")

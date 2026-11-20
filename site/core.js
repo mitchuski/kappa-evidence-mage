@@ -117,5 +117,5 @@ async function verifyBundle(B) {
   const m = await merkleRoot(leaves.map(k => enc.encode(k)));
   const mOk = m === root.get(4);
   say(mOk, mOk ? `Merkle root over ${leaves.length} leaves matches the root` : `Merkle root over the bytes as they are now is ${m.slice(0, 10)}…, the root seals ${String(root.get(4)).slice(0, 10)}…`);
-  return { ok: !bad && walkOk && provOk && checkOk && mOk, steps: out, status: root.get(5), lane: root.get(1), badNames, mOk };
+  return { ok: !bad && walkOk && provOk && checkOk && mOk, steps: out, status: root.get(5), lane: root.get(1), badNames, mOk, merkle: m };
 }

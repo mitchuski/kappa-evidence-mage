@@ -1,6 +1,11 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>The Scrying Stone · κ evidence, the record behind Proof of Agentic Work</title>
 <meta name="description" content="The Scrying Stone: look into a claim and see the work behind it. κ evidence is the record layer of Proof of Agentic Work: every proposal, test and verdict an agent produces, failures included, named by the hash of its bytes and sealed under one root that anyone can re-derive. See a bundle and break it in your browser.">
+<link rel="canonical" href="https://scry.mages.city/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2307090f'/%3E%3Ccircle cx='32' cy='32' r='19' fill='none' stroke='%23e8c873' stroke-width='3'/%3E%3Ccircle cx='32' cy='32' r='6' fill='%239fd6db'/%3E%3C/svg%3E">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Mages City"><meta property="og:url" content="https://scry.mages.city/">
+<meta property="og:title" content="The Scrying Stone · κ evidence"><meta property="og:description" content="Look into a claim and see the work behind it. κ evidence names every proposal, test and verdict by the hash of its bytes and seals them under one root anyone can re-derive.">
+<meta name="twitter:card" content="summary"><meta name="theme-color" content="#07090f">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
 :root{color-scheme:dark;--bg:#07090f;--panel:#0d1018;--line:#23252e;--ink:#d9d2c3;--soft:#bdb6a7;--dim:#8a867c;--faint:#3a3a40;--gold:#e8c873;--cyan:#9fd6db;--coral:#e5a49c;--green:#a9d6a0;
@@ -13,7 +18,7 @@ nav{display:flex;justify-content:space-between;align-items:center;gap:16px;paddi
 nav .mark{color:var(--gold);font:italic 26px/1 var(--serif);letter-spacing:0;white-space:nowrap}nav .mark:hover{text-decoration:none}nav .mark span{font:12px var(--mono);font-style:normal;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-left:8px;vertical-align:3px}
 nav .links{display:flex;gap:20px;flex-wrap:wrap;justify-content:flex-end}nav .links a{color:var(--dim)}nav .links a:hover{color:var(--cyan)}
 .kicker{font:11px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:44px 0 0}
-h1{font:400 clamp(40px,6.4vw,74px)/1.03 var(--serif);margin:14px 0 0;max-width:14em;text-wrap:balance}h1 em{color:var(--gold)}
+h1{font:400 clamp(38px,5.2vw,62px)/1.04 var(--serif);margin:14px 0 0;max-width:14em;text-wrap:balance}h1 em{color:var(--gold)}
 .epi{font-style:italic;font-size:22px;line-height:1.5;color:var(--soft);max-width:35em;margin:22px 0 0;text-wrap:pretty}
 .cta{display:flex;gap:14px;flex-wrap:wrap;margin:32px 0 0}
 .btn{font:13px var(--mono);letter-spacing:.05em;padding:11px 18px;border-radius:24px;border:1px solid var(--faint);color:var(--ink);background:none;cursor:pointer}
@@ -29,6 +34,31 @@ textarea:focus,input:focus,button:focus-visible,[tabindex]:focus-visible{outline
 .kout{font:13.5px/1.6 var(--mono);color:var(--gold);overflow-wrap:anywhere;margin:14px 0 0;min-height:2.6em}.kout span{color:var(--dim)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
 .live{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:22px;align-items:start}
+
+/* the stone: the Merkle tree the root seals, leaves on the rim, root at the centre */
+.hero{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr);gap:20px 44px;align-items:center}
+.stonewrap{margin:44px 0 0;min-width:0}
+#stone{display:block;width:100%;max-width:420px;height:auto;margin:0 auto;overflow:visible}
+#stone .rim{fill:url(#sg);stroke:var(--gold);stroke-opacity:.45;transition:stroke .4s}
+#stone .ring{fill:none;stroke:var(--line)}
+#stone .shine{fill:none;stroke:#fff;stroke-opacity:.07;stroke-width:3;stroke-linecap:round}
+#stone .lk{fill:none;stroke:#4a4d5a;stroke-width:1.2;stroke-dasharray:1;stroke-dashoffset:1;animation:sdraw .7s ease-out forwards;transition:stroke .4s}
+#stone .nd{fill:#6d6f7a;opacity:0;animation:sfade .5s ease-out forwards;transition:fill .4s}
+#stone .lf{cursor:pointer}#stone .lf .hitbox{fill:transparent}
+#stone .lf .d{fill:var(--soft);transition:fill .4s}#stone .lf.e .d{fill:#6d6f7a}#stone .lf.b .d{fill:var(--cyan)}
+#stone .lf:hover .d,#stone .lf.on .d{fill:var(--gold)}
+#stone .halo{fill:var(--gold);opacity:0;animation:swake 1.2s ease-out forwards,spulse 6s ease-in-out infinite;transition:fill .4s}
+#stone .core{fill:var(--gold);opacity:0;animation:sfade .8s ease-out forwards;transition:fill .4s}
+#stone .sp{fill:none;stroke:var(--gold);stroke-width:2;stroke-linecap:round;stroke-dasharray:.16 2;stroke-dashoffset:.16;opacity:0;animation:sflow 6s linear infinite;pointer-events:none}
+#stone .sp.bad{stroke:var(--coral)}
+#scon{opacity:0;animation:sfade 1.4s ease-out forwards}#scon path{fill:none;stroke:var(--gold);stroke-opacity:.55;stroke-width:.8;stroke-linejoin:round}
+#scon circle{fill:#fff3d2;animation:stwink 4s ease-in-out infinite}#scon.bad path{stroke:var(--coral)}#scon.bad circle{fill:#ffd9d3}
+#stone .lk.bad{stroke:var(--coral)}#stone .nd.bad,#stone .lf.bad .d,#stone .core.bad,#stone .halo.bad{fill:var(--coral)}
+#stone .rim.bad{stroke:var(--coral)}
+@keyframes sdraw{to{stroke-dashoffset:0}}@keyframes sfade{to{opacity:1}}@keyframes swake{to{opacity:.22}}@keyframes stwink{50%{opacity:.45}}@keyframes spulse{0%,38%,72%,100%{opacity:.22}52%{opacity:.6}}@keyframes sflow{0%{stroke-dashoffset:.16;opacity:0}1.5%{opacity:.95}12%{stroke-dashoffset:-1;opacity:.95}13.5%,100%{stroke-dashoffset:-1;opacity:0}}
+@media(prefers-reduced-motion:reduce){#stone .lk{animation:none;stroke-dashoffset:0}#stone .nd,#stone .core{animation:none;opacity:1}#stone .halo{animation:none;opacity:.22}#stone .sp{display:none}#scon{animation:none;opacity:1}#scon circle{animation:none}}
+#stonecap{font:12px/1.6 var(--mono);color:var(--dim);text-align:center;margin:14px auto 0;max-width:34em;min-height:3.2em;overflow-wrap:anywhere}
+#stonecap b{font-weight:400;color:var(--gold)}#stonecap .x{color:var(--coral)}#stonecap .w{color:var(--soft)}
 
 /* why: what PoAW asks, what κ gives */
 .asks{list-style:none;margin:0;padding:0}
@@ -105,7 +135,7 @@ td{border-top:1px solid var(--line);padding:13px 14px 13px 0;vertical-align:top;
 .used b{display:block;font:13px var(--mono);color:var(--cyan);font-weight:400;margin-bottom:6px;overflow-wrap:anywhere}
 blockquote{margin:96px 0 0;font:italic clamp(22px,3vw,30px)/1.4 var(--serif);color:var(--soft);max-width:28em;border-left:1px solid var(--gold);padding-left:22px;text-wrap:balance}
 footer{margin:72px 0 0;border-top:1px solid var(--line);padding:22px 0 90px;font:12.5px/1.9 var(--mono);color:var(--dim)}
-@media(max-width:900px){.live{grid-template-columns:1fr}#chain{grid-template-columns:1fr 1fr;row-gap:22px}#chain li:nth-child(2){padding-right:0}#chain li:nth-child(2)::after{display:none}}
+@media(max-width:900px){.hero{grid-template-columns:1fr}.stonewrap{margin-top:28px}#stone{max-width:340px}.live{grid-template-columns:1fr}#chain{grid-template-columns:1fr 1fr;row-gap:22px}#chain li:nth-child(2){padding-right:0}#chain li:nth-child(2)::after{display:none}}
 @media(max-width:760px){body{font-size:18px}.wrap{padding:0 16px}.grid2{grid-template-columns:1fr}section{margin-top:72px}td:last-child{white-space:normal}nav .links{gap:14px}
 .rows li{grid-template-columns:2.4em 1fr}.rows .n{font-size:32px}.asks li{grid-template-columns:2.2em 1fr}.asks .n{font-size:30px;grid-row:span 2}.panel{padding:16px}}
 @media(max-width:520px){#chain{grid-template-columns:1fr}#chain li{padding:0 0 22px}#chain li:last-child{padding-bottom:0}#chain li::after{display:none}#chain li.cut:not(:first-child)::before{left:14px;top:-20px}#chain .w{min-height:0}}
@@ -114,11 +144,17 @@ footer{margin:72px 0 0;border-top:1px solid var(--line);padding:22px 0 90px;font
 <nav><a class="mark" href="/" aria-label="The Scrying Stone">κ <span>The Scrying Stone</span></a>
 <div class="links"><a href="#why">why</a><a href="#see">see it</a><a href="#chain-s">the chain</a><a href="#use">use it</a><a href="https://github.com/mitchuski/kappa-evidence-mage">github</a><a href="https://mages.city/trinkets.html">trinkets</a></div></nav>
 
-<header>
+<header class="hero">
+<div>
 <div class="kicker">A Mages City trinket · look into a claim and see the work behind it</div>
 <h1>The work behind the claim, sealed so anyone can <em>check</em> it.</h1>
 <p class="epi">An agent reports a result. κ evidence is everything that stands behind it: each proposal, test and verdict, the failures too, named by the hash of its own bytes and tied into one root. It is the record that Proof of Agentic Work is made of.</p>
 <div class="cta"><a class="btn gold" href="#see">See a bundle, then break it</a><a class="btn" href="#why">Why Proof of Agentic Work needs it</a></div>
+</div>
+<div class="stonewrap">
+<svg id="stone" viewBox="0 0 400 400" role="img" aria-label="The Scrying Stone: the Merkle tree of the example bundle, with every sealed name on the rim and the root they hash to at the centre"></svg>
+<div id="stonecap" aria-live="polite"></div>
+</div>
 </header>
 
 <section id="why">
@@ -215,7 +251,7 @@ footer{margin:72px 0 0;border-top:1px solid var(--line);padding:22px 0 90px;font
 <tr><td>Equality with the registry's Rust core</td><td><code>kappa-core</code> itself, run on a fixed vector</td><td>10 of 10 identical</td></tr>
 <tr><td>Three independent implementations</td><td>Python, JavaScript and Rust held to the same vector</td><td>agree</td></tr>
 <tr><td>Every address cited on agentprivacy.org</td><td>Re-derived in Rust: decode, re-encode, re-hash, walk</td><td>4,213 checks, 0 failures</td></tr>
-<tr><td>Merkle root, inclusion proofs, chain head</td><td>Lean 4 theorems, kernel-checked and axiom-audited</td><td>proved</td></tr>
+<tr><td>Merkle root, inclusion proofs, chain head</td><td>Lean 4 theorems, kernel-checked and axiom-audited. The sources are not yet public; the audit is sealed by root on the <a href="https://formal.mages.city/">formal scroll</a></td><td>proved</td></tr>
 </table></div>
 </section>
 
@@ -242,6 +278,8 @@ python -c "import kappa as K; print(K.kappa_from_value({0: 'example/thing/1', 1:
 <div class="used">
 <a href="https://github.com/mitchuski/agentprivacy-harness"><b>agentprivacy-harness</b>The dual-agent harness mints a bundle for every run and re-verifies them at every gate, with an independent JavaScript implementation.</a>
 <a href="https://github.com/mitchuski/trust-tasks-formal"><b>trust-tasks-formal</b>Formal proofs published with the evidence bundle that seals their audit.</a>
+<a href="https://github.com/mitchuski/agentprivacy-harness-demos"><b>harness demos</b>Readers bound to the evidence root they were generated from.</a>
+<a href="https://github.com/mitchuski/poc_mage"><b>poc_mage</b>A standards contribution with every claim checked against pinned sources and sealed in a bundle.</a>
 <a href="https://mages.city"><b>mages.city scrolls</b>Pages written as nothing but the hashes of a body of work, each one checkable.</a>
 <a href="https://agentprivacy.org/harness/record/"><b>agentprivacy.org record</b>The research record, cited by root.</a>
 </div>
@@ -348,11 +386,84 @@ function paint(r) {
   }
   for (const p of $('graph').querySelectorAll('.edge')) p.classList.toggle('hit', state[p.dataset.t] !== 'ok');
 }
+// the stone: every sealed name on the rim, hashed pairwise inward to the Merkle root the run root holds
+const S = (() => {
+  const says = { 1: 'is composed of', 11: 'is derived from', 13: 'was read from' };
+  const name = id => G.pos[id] ? G.pos[id].title.split(' · ')[0] : short(id) + '…';
+  const E = Object.entries(BUNDLE.edges).map(([k, h]) => [k, decode(unhex(h))]);
+  const leaves = [
+    ...Object.keys(BUNDLE.objects).filter(k => 'sha256:' + k !== BUNDLE.root).map(k => ({ id: 'sha256:' + k, kind: 'o', label: G.pos['sha256:' + k].title })),
+    ...E.filter(([, e]) => e.get(0) !== BUNDLE.root).map(([k, e]) => ({ id: 'sha256:' + k, kind: 'e', label: `link · ${name(e.get(0))} ${says[e.get(2)]} ${name(e.get(1))}` })),
+    { id: 'sha256:' + BUNDLE.blob.name, kind: 'b', label: 'source.csv · the sealed file' }].sort((a, b) => a.id < b.id ? -1 : 1);
+  const sizes = [leaves.length]; while (sizes.at(-1) > 1) sizes.push(Math.ceil(sizes.at(-1) / 2));
+  const D = sizes.length - 1, ang = [leaves.map((_, i) => -90 + (i + .5) * 360 / leaves.length)];
+  for (let l = 0; l < D; l++) ang.push(Array.from({ length: sizes[l + 1] }, (_, j) => (ang[l][2 * j] + (ang[l][2 * j + 1] ?? ang[l][2 * j])) / 2));
+  const rad = l => 150 * (1 - l / D), at = (r, a) => [200 + r * Math.cos(a * Math.PI / 180), 200 + r * Math.sin(a * Math.PI / 180)].map(v => v.toFixed(1));
+  return { leaves, sizes, D, sealed: G.O[BUNDLE.root].get(4), pt: (l, i) => at(rad(l), ang[l][i]), ctl: (l, i) => at(rad(l + 1), ang[l][i]), rad };
+})();
+function drawStone() {
+  let h = `<defs><radialGradient id="sg" cx="42%" cy="36%" r="75%"><stop offset="0" stop-color="#171b2c"/><stop offset="1" stop-color="#080a11"/></radialGradient>` +
+    `<filter id="sb" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="9"/></filter></defs>` +
+    `<circle class="rim" cx="200" cy="200" r="188"/><path class="shine" d="M52 128A166 166 0 0 1 132 50"/>`;
+  for (let l = 0; l < S.D; l++) h += `<circle class="ring" cx="200" cy="200" r="${S.rad(l)}"/>`;
+  for (let l = 0; l < S.D; l++) for (let i = 0; i < S.sizes[l]; i++)
+    h += `<path class="lk" data-k="${l}-${i}" pathLength="1" style="animation-delay:${(.3 + l * .5 + i * .02).toFixed(2)}s" d="M${S.pt(l, i)}Q${S.ctl(l, i)} ${S.pt(l + 1, i >> 1)}"/>`;
+  // the names keep being hashed inward: a pulse leaves the rim, climbs a level at a time and lands on the root
+  const t0 = .9 + S.D * .5;
+  for (let l = 0; l < S.D; l++) for (let i = 0; i < S.sizes[l]; i++)
+    h += `<path class="sp" data-s="${l}-${i}" pathLength="1" style="animation-delay:${(t0 + l * .66).toFixed(2)}s" d="M${S.pt(l, i)}Q${S.ctl(l, i)} ${S.pt(l + 1, i >> 1)}"/>`;
+  for (let l = 1; l < S.D; l++) for (let i = 0; i < S.sizes[l]; i++) { const [x, y] = S.pt(l, i);
+    h += `<circle class="nd" data-n="${l}-${i}" cx="${x}" cy="${y}" r="2.6" style="animation-delay:${(.5 + l * .5).toFixed(2)}s"/>`; }
+  S.leaves.forEach((f, i) => { const [x, y] = S.pt(0, i);
+    h += `<g class="lf ${f.kind}" data-i="${i}"><circle class="hitbox" cx="${x}" cy="${y}" r="12"/><circle class="d" cx="${x}" cy="${y}" r="${{ o: 4.6, e: 3, b: 6 }[f.kind]}"/></g>`; });
+  const t = (.5 + S.D * .5).toFixed(2);
+  h += `<circle class="halo" cx="200" cy="200" r="24" filter="url(#sb)" style="animation-delay:${t}s,${t0.toFixed(2)}s"/><g id="scon" style="animation-delay:${t}s"></g><circle class="core" cx="200" cy="200" r="5" style="animation-delay:${t}s"/>`;
+  $('stone').innerHTML = h;
+}
+// the root's own constellation: six stars placed by the first bytes of the Merkle root, so a different root is a different sky
+function constellation(h) {
+  const b = unhex(h.slice(0, 24)), st = [];
+  for (let k = 0; k < 6; k++) st.push({ a: b[2 * k] / 256 * 360, r: 10 + b[2 * k + 1] / 255 * 17, s: 1 + (b[2 * k + 1] & 3) * .3 });
+  st.sort((p, q) => p.a - q.a);
+  let cut = 0, gap = 0; st.forEach((p, i) => { const g = (st[(i + 1) % 6].a - p.a + 360) % 360; if (g > gap) { gap = g; cut = i + 1; } });
+  const ch = [...st.slice(cut), ...st.slice(0, cut)].map(p => ({ ...p, x: (200 + p.r * Math.cos(p.a * Math.PI / 180)).toFixed(1), y: (200 + p.r * Math.sin(p.a * Math.PI / 180)).toFixed(1) }));
+  const near = ch.reduce((m, p) => p.r < m.r ? p : m);
+  return `<path d="M${ch.map(p => p.x + ' ' + p.y).join('L')}M200 200L${near.x} ${near.y}"/>` + ch.map((p, i) => `<circle cx="${p.x}" cy="${p.y}" r="${p.s.toFixed(1)}" style="animation-delay:${(i * .7).toFixed(1)}s"/>`).join('');
+}
+function stoneCap(i) {
+  if (i != null) { const f = S.leaves[i]; return `<span class="w">${esc(f.label)}</span><br>${f.id.slice(0, 31)}…`; }
+  return S.cap || '';
+}
+function paintStone(r) {
+  const bad = new Set(r.badNames), svg = $('stone'), q = s => svg.querySelector(s);
+  let lvl = S.leaves.map(f => bad.has(f.id));
+  lvl.forEach((b, i) => q(`.lf[data-i="${i}"]`).classList.toggle('bad', b));
+  for (let l = 0; l < S.D; l++) {
+    lvl.forEach((b, i) => { q(`[data-k="${l}-${i}"]`).classList.toggle('bad', b); q(`[data-s="${l}-${i}"]`).classList.toggle('bad', b); });
+    lvl = Array.from({ length: S.sizes[l + 1] }, (_, j) => lvl[2 * j] || !!lvl[2 * j + 1]);
+    if (l + 1 < S.D) lvl.forEach((b, i) => q(`[data-n="${l + 1}-${i}"]`).classList.toggle('bad', b));
+  }
+  for (const c of ['.core', '.halo', '.rim']) q(c).classList.toggle('bad', !r.ok);
+  const sky = r.ok || !r.merkle ? S.sealed : r.merkle, con = q('#scon');
+  if (con.dataset.h !== sky) { if (con.dataset.h) { con.style.animation = 'none'; con.getBoundingClientRect(); con.style.animation = ''; con.style.animationDelay = '0s'; } con.dataset.h = sky; con.innerHTML = constellation(sky); }
+  con.classList.toggle('bad', !r.ok);
+  const n = bad.size;
+  S.cap = r.ok ? `<b>${S.sealed.slice(0, 16)}…</b><br>one Merkle root over ${S.leaves.length} sealed names. Point at one.`
+    : `<span class="x">${n ? `${n} name${n > 1 ? 's' : ''} no longer match${n > 1 ? '' : 'es'} the bytes` : 'the record no longer verifies'}${r.merkle ? `: these bytes give ${r.merkle.slice(0, 12)}…` : ''}</span><br>the root sealed <b>${S.sealed.slice(0, 12)}…</b>`;
+  if (!svg.querySelector('.lf.on')) $('stonecap').innerHTML = S.cap;
+}
+const stoneOff = () => { for (const x of $('stone').querySelectorAll('.lf.on')) x.classList.remove('on'); };
+$('stone').addEventListener('mouseover', e => { const g = e.target.closest('.lf'); stoneOff(); if (g) g.classList.add('on'); $('stonecap').innerHTML = stoneCap(g ? +g.dataset.i : null); });
+$('stone').addEventListener('mouseleave', () => { stoneOff(); $('stonecap').innerHTML = stoneCap(); });
+$('stone').addEventListener('click', e => { const g = e.target.closest('.lf'); if (!g) return; const id = S.leaves[+g.dataset.i].id;
+  $('stonecap').innerHTML = stoneCap(+g.dataset.i);
+  if (G.pos[id]) { selected = id; for (const x of $('graph').querySelectorAll('.node')) x.classList.toggle('sel', x.dataset.id === id); showDetail(); $('see').scrollIntoView(); } });
+
 let run = 0;
 async function refresh() {
   const mine = ++run, B = current(), r = await verifyBundle(B);
   if (mine !== run) return;
-  lastB = B; paint(r); showDetail();
+  lastB = B; paint(r); paintStone(r); showDetail();
   $('steps').innerHTML = r.steps.map(s => `<li class="${s.ok ? '' : 'bad'}"><span class="t">${s.ok ? 'ok' : 'FAIL'}</span><span>${esc(s.text)}</span></li>`).join('');
   const v = $('verdict'); v.className = r.ok ? 'ok' : 'bad';
   v.innerHTML = r.ok ? `Verified<small>${esc(r.status)} · lane ${esc(r.lane)}</small>`
@@ -400,7 +511,7 @@ async function drawChain() {
 $('rewrite').addEventListener('click', () => { rewritten = !rewritten; drawChain(); });
 
 $('src').value = BUNDLE.blob.text;
-if (window.crypto && crypto.subtle) { drawGraph(); showKappa(); refresh(); drawChain(); }
+if (window.crypto && crypto.subtle) { drawGraph(); drawStone(); showKappa(); refresh(); drawChain(); }
 else { $('kout').textContent = 'This browser does not expose Web Crypto here (it needs https or localhost).'; $('verdict').textContent = 'Verifier unavailable'; }
 </script>
 </body></html>

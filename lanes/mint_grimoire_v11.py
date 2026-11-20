@@ -8,11 +8,12 @@ The run root carries prev = the grimoire_v2 root (the 14 pins it succeeds). Ledg
 Sealed, not judged: what the grimoire says is checked by its build and the soul mage's census, not here.
 """
 from __future__ import annotations
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # repository root
 import hashlib, json, os, sys
 from bundle import Bundle
 from ipfs_cid import build as cid_build
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TAG = "grimoire_v11"; IN = os.path.join(HERE, "input", TAG); OUT = os.path.join(HERE, "out", TAG)
 PREV = json.load(open(os.path.join(HERE, "out", "grimoire_v2", "root.json"), encoding="utf-8"))["root_kappa"]
 GRIM = "agentprivacy_universe_grimoire_v11.0.0.json"

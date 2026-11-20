@@ -15,6 +15,7 @@ minted. Final bundle: out/sig_r2_869/final/. Then: python verify_bundle.py out/s
 Reads the sig_mage worktree and research files read-only (git diff only); never edits them.
 """
 from __future__ import annotations
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # repository root
 
 import hashlib
 import json
@@ -27,7 +28,7 @@ import sys
 import kappa as K
 from bundle import Bundle, redact
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 IN = os.path.join(HERE, "input", "sig_r2_869")
 SIG = os.environ.get("SIG_MAGE", os.path.join(os.path.expanduser("~"), "sig_mage")).replace("\\", "/")
 WT = SIG + "/sig-golf-r2on869m"

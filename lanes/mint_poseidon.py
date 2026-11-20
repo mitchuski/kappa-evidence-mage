@@ -5,9 +5,10 @@ Writes out/poseidon_v1/. Records: certificate/1 (pairs, digest), orchard-ledger/
 memory), package-file/1. Rule hashsmash/orchard-ledger-sum/1 recomputes totals and log2 from the record.
 """
 from __future__ import annotations
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # repository root
 import hashlib, json, math, os, sys
 from bundle import Bundle
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TAG = sys.argv[1] if len(sys.argv) > 1 else "poseidon_v1"
 IN = os.path.join(HERE, "input", TAG); OUT = os.path.join(HERE, "out", TAG)
 ASSERTER = "unsigned:poseidon_mage"

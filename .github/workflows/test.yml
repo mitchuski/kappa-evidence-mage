@@ -31,3 +31,7 @@ jobs:
         run: |
           python example_mint.py
           python verify_bundle.py out/example
+      - name: Published page is the current build
+        run: |
+          python site/build.py
+          git diff --exit-code site/public

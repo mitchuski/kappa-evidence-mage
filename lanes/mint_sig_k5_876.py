@@ -14,6 +14,7 @@ after 118 rows); the rows are the JSON lines of k5_emu.log (seed1..c5_105) + k5_
 Reads the sig_mage worktree read-only (git diff, check_submission.py); never edits it.
 """
 from __future__ import annotations
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # repository root
 
 import hashlib
 import json

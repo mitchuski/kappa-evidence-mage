@@ -34,7 +34,7 @@ change is a breaking one: say so in the pull request and explain why.
 ## Good first contributions
 
 - A verifier in another language, held to `test_vector.json`.
-- A lane adapter for a new kind of evidence (see "Adding a lane" in the README).
+- A lane adapter for a new kind of evidence (see "Sealing your own work" in the README and `lanes/`).
 - Clearer errors from `verify_bundle.py` when a bundle fails.
 - Test vectors for edge cases of the dCBOR rules (floats, NFC, map ordering).
 

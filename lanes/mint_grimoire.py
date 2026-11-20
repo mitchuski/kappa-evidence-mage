@@ -10,10 +10,11 @@ identical bytes, where one exists. Ledgers per line and for the site copies; row
 Sealed, not judged: no claim inside a grimoire is checked here.
 """
 from __future__ import annotations
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # repository root
 import hashlib, json, os, sys
 from bundle import Bundle
 from ipfs_cid import build as cid_build
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TAG = sys.argv[1] if len(sys.argv) > 1 else "grimoire_v2"
 IN = os.path.join(HERE, "input", TAG); OUT = os.path.join(HERE, "out", TAG)
 ASSERTER = "unsigned:privacy_mage"

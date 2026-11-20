@@ -8,6 +8,7 @@ Writes out/sig_h2_b96b3ca/. Object shape follows the snapshot README's suggestio
   derived-from their base image and the patch-report blob; layouts, kit manifest, chronicle as blobs.
 """
 from __future__ import annotations
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # repository root
 
 import json
 import os
@@ -15,7 +16,7 @@ import os
 import kappa as K
 from bundle import NS, Bundle, redact
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 IN = os.path.join(HERE, "input", "sig_h2_b96b3ca")
 OUT = os.path.join(HERE, "out", "sig_h2_b96b3ca")
 LANE = "sig-golf/h2-b96b3ca"

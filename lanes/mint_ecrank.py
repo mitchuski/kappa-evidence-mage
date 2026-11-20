@@ -8,9 +8,10 @@ hashsmash/lever-tally/1 on the levers. The curves themselves are re-checkable wi
 challenge's verifier (python -m ec_verify) on the board files in the bundle.
 """
 from __future__ import annotations
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # repository root
 import hashlib, json, os, sys
 from bundle import Bundle
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TAG = sys.argv[1] if len(sys.argv) > 1 else "ecrank_v1"
 IN = os.path.join(HERE, "input", TAG); OUT = os.path.join(HERE, "out", TAG)
 ASSERTER = "unsigned:ecrank_mage"

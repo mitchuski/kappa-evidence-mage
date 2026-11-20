@@ -8,9 +8,10 @@ Records: package-file/1 per file, organizer-check/1, one lever leaf per levers.j
 (positive / neutral / negative, refers-to edges to its evidence blobs) + hashsmash/lever-tally/1.
 """
 from __future__ import annotations
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # repository root
 import hashlib, json, os, shutil, sys
 from bundle import Bundle
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BOARDS = {"sha256": "sha256", "sha3": "sha3-256", "blake3": "blake3", "poseidon": "poseidon"}
 ASSERTER = "unsigned:hashsmash_mage"
 

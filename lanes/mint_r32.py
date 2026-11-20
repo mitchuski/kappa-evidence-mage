@@ -15,6 +15,7 @@ Edges are upstream Edge records (types.rs:377-394), asserter = a placeholder str
 gives the lane an anchor key.
 """
 from __future__ import annotations
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # repository root
 
 import json
 import os
@@ -25,7 +26,7 @@ from datetime import date
 
 import kappa as K
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 IN = os.path.join(HERE, "input", "r32")
 OUT = os.path.join(HERE, "out", "r32")
 LANE = "hashsmash/sha256-r32"

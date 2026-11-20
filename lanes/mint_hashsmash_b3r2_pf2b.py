@@ -6,6 +6,7 @@ the exact Lemma PF enumeration, the package self-test, the organizer's determini
 package file as a record with provenance to its blob.
 """
 from __future__ import annotations
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # repository root
 
 import hashlib
 import json
@@ -15,9 +16,9 @@ import re
 
 from bundle import Bundle
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-IN = os.path.join(HERE, "input", "b3r2_pf2d")
-OUT = os.path.join(HERE, "out", "b3r2_pf2d")
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+IN = os.path.join(HERE, "input", "b3r2_pf2b")
+OUT = os.path.join(HERE, "out", "b3r2_pf2b")
 ASSERTER = "unsigned:hashsmash_mage"
 
 
@@ -104,7 +105,7 @@ def main():
     root = B.root(["b3r2-prefilter-evidence", "b3r2-prefilter-files", "b3r2-experiments-completed"],
                   {"track": "blake3-r2-exploratory", "claim": str(claim),
                    "builds_on": {"9638e58": "0xshikhar", "b6a7681": "Th0rgal", "4348a26": "Jbenisek", "070a02b": "promoted crown"},
-                   "snapshot_files": n, "revises": "sha256:4332e53a401134db8f686ea02c74d231e8ab300ad331ee7a41d87e2fac3a2ecc", "revision": "fits the 512 KiB judge-evidence budget (submission fc11d939 failed intake at 524,996 bytes; now 519,899): wording trims only"})
+                   "snapshot_files": n, "revises": "sha256:62d963d459e7201e2e5c02fae1c53176c121b73675099faab238dfd1e85dc5f0", "revision": "critic fixes: kept word W add (7 U_E), W_CTX, 9.1 amendments, H_PF part (b)"})
     B.write(OUT, ["", f"Files in snapshot: {n}", "Ledgers: b3r2-prefilter-evidence, b3r2-prefilter-files", "",
                   "verify_bundle.py recomputes the experiment tally from the bundle alone.",
                   "The organizer report is the Docker executor's own JSON; the 200,000-context run is ours (not organizer evidence)."])

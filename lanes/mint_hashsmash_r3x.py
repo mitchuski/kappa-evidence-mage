@@ -6,6 +6,7 @@ Records: experiment results (organizer Docker executor, public seed), large loca
 counts, certificate outputs; blobs: the package files, program, manifest, reports.
 """
 from __future__ import annotations
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # repository root
 
 import hashlib
 import json
@@ -15,7 +16,7 @@ import sys
 
 from bundle import Bundle
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 IN = os.path.join(HERE, "input", "r3x")
 OUT = os.path.join(HERE, "out", "r3x")
 ASSERTER = "unsigned:hashsmash_mage"

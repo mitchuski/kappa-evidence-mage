@@ -9,9 +9,10 @@ The candidate is re-checkable: apply runs/<r>/candidate.patch to eigenlabs/shore
 commit named in RUN.md and run ./benchmark.sh (Linux).
 """
 from __future__ import annotations
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # repository root
 import hashlib, json, os, sys
 from bundle import Bundle
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TAG = sys.argv[1] if len(sys.argv) > 1 else "shorecdlp_v1"
 IN = os.path.join(HERE, "input", TAG); OUT = os.path.join(HERE, "out", TAG)
 ASSERTER = "unsigned:shorecdlp_mage"

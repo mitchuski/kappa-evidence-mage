@@ -8,10 +8,11 @@ rows/count/1), the lever ledger (negatives are leaves; hashsmash/lever-tally/1),
 usage: python mint_r38.py [tag]   (default r38_v1)
 """
 from __future__ import annotations
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # repository root
 import hashlib, json, os, shutil, sys, re
 PRIVATE = re.compile(r"(?i)([a-z]:[\/]users[\/]|/c/users|/mnt/c/|/home/|/root/|desktop-|\\wsl|@[a-z0-9.-]+\.(local|lan))")
 from bundle import Bundle
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TAG = sys.argv[1] if len(sys.argv) > 1 else "r38_v1"
 IN = os.path.join(HERE, "input", TAG); OUT = os.path.join(HERE, "out", TAG)
 WAVE = os.path.join(os.path.expanduser("~"), "pareto_wave", "sha256_r38", "WAVE")

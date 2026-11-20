@@ -7,10 +7,11 @@ inconclusive / lead), provenance = the evidence blob(s) the row names; one ledge
 (b3_row, evidence b3 digests) as a second axis; the registry kappa stays sha256 over dCBOR.
 """
 from __future__ import annotations
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # repository root
 import hashlib, json, os
 from bundle import Bundle, redact
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 IN = os.path.join(HERE, "input", "blake3_2026-10-11")
 OUT = os.path.join(HERE, "out", "blake3_2026-10-11")
 LANE = "hashsmash/blake3"

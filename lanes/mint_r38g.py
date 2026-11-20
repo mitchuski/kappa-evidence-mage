@@ -1,6 +1,6 @@
-"""mint_r38f.py - mint the sha256-r38 r38f evidence (Yukon mooselumph/hashsmash, track sha256-r38-exploratory).
+"""mint_r38g.py - mint the sha256-r38 r38g evidence (Yukon mooselumph/hashsmash, track sha256-r38-exploratory).
 
-Fork of mint_r38.py for the fifth filing. Snapshot (input/<tag>/):
+Fork of mint_r38f.py for the sixth filing (adds the r38g tools, the replay records, the offline bindings and the identity record). Snapshot (input/<tag>/):
   package/          the r38f candidate package as frozen (claim, proof, manifests, r38joint.py, q3data.py)
   docs/             window declarations (DECLARE_WINDOWS.md, DECLARE_LONG_2026-10-25.md), the registered deep-rate plan
                     (Q3_PLAN.md, verbatim: its registration hash covers these bytes), the critic review, the result note,
@@ -15,21 +15,26 @@ Fork of mint_r38.py for the fifth filing. Snapshot (input/<tag>/):
 SHA256SUMS.txt over all. usage: python mint_r38f.py [tag]   (default r38f_v1)
 """
 from __future__ import annotations
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # repository root
 import hashlib, json, os, shutil, sys, re
 PRIVATE = re.compile(r"(?i)([a-z]:[\/]users[\/]|/c/users|/mnt/c/|/home/|/root/|desktop-|\\wsl|@[a-z0-9.-]+\.(local|lan))")
 from bundle import Bundle
-HERE = os.path.dirname(os.path.abspath(__file__))
-TAG = sys.argv[1] if len(sys.argv) > 1 else "r38f_v1"
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TAG = sys.argv[1] if len(sys.argv) > 1 else "r38g_v1"
 IN = os.path.join(HERE, "input", TAG); OUT = os.path.join(HERE, "out", TAG)
 WAVE = os.path.join(os.path.expanduser("~"), "pareto_wave", "sha256_r38", "WAVE")
 SCR = "D:/r38_scratch"
 ASSERTER = "unsigned:hashsmash_mage"
 HOME = os.path.expanduser("~").replace(chr(92), "/")  # this machine's home, never written into the repo
 WSL_HOME = "/mnt/" + HOME[0].lower() + HOME[2:]
-SUBS = [(HOME + "/pareto_wave/sha256_r38/WAVE", "<WAVE>"), (WSL_HOME + "/pareto_wave/sha256_r38/WAVE", "<WAVE>"),
+SUBS = [(HOME + "/pareto_wave/sha256_r38/ref", "<REF>"), (HOME + "/pareto_wave/sha256_r38/WAVE", "<WAVE>"), (HOME + "/AppData/Local/Temp/claude", "<TMP>"), (WSL_HOME + "/pareto_wave/sha256_r38/WAVE", "<WAVE>"),
         (HOME + "/AppData/Local/Temp", "<TMP>"), ("D:/r38_scratch", "<SCRATCH>"), ("/mnt/d/r38_scratch", "<SCRATCH>")]
 VERBATIM_TOOLS = ["q3walk.c", "q3_status.py"]
-NEUTRAL_TOOLS = ["q3_run.sh", "q3_launch_O.sh", "f7g_long.sh", "q3mirror.py", "q3ref.py", "q3smc.py", "stat_bounds.py", "make_q3data.py", "fill_proof_f.py"]
+NEUTRAL_TOOLS = ["q3_run.sh", "q3_launch_O.sh", "f7g_long.sh", "q3mirror.py", "q3ref.py", "q3smc.py", "stat_bounds.py", "make_q3data.py", "fill_proof_f.py",
+                 "../pkg_g/tools/fill_proof_g.py", "../pkg_g/tools/fill_extra_g.py", "../pkg_g/tools/make_joint_g.py", "../pkg_g/tools/new_e.txt",
+                 "../pkg_g/tools/make_q3data_g.py", "../pkg_g/tools/replay_record.py", "../pkg_g/tools/replay_all.sh", "../pkg_g/tools/wsl_run_experiments.py",
+                 "../pkg_g/tools/mem_inventory_g.py", "../pkg_g/tools/make_manifest_g.py", "../pkg_g/tools/make_proof_template_g.py",
+                 "../pkg_g/tools/tpl_blocks_g.txt", "../pkg_g/tools/org_seeds.py", "../pkg_g/tools/mkreq.py", "../pkg_g/tools/check_g.sh"]
 def sha(b): return hashlib.sha256(b).hexdigest()
 
 def cp(src, rel):
@@ -37,14 +42,22 @@ def cp(src, rel):
 
 def snapshot():
     if os.path.exists(IN): shutil.rmtree(IN)
-    root = os.path.join(WAVE, "pkg_f", "candidate")
+    root = os.path.join(WAVE, "pkg_g", "candidate")
     for d, _, fs in os.walk(root):
         if "__pycache__" in d: raise SystemExit("pycache present: " + d)
         for f in fs:
             src = os.path.join(d, f); cp(src, "package/" + os.path.relpath(src, root).replace(os.sep, "/"))
-    for rel in ("DECLARE_WINDOWS.md", "DECLARE_LONG_2026-10-25.md", "Q3_PLAN.md", "CRITIC_r38f.md", "RESULT.md"):
+    for rel in ("DECLARE_WINDOWS.md", "DECLARE_LONG_2026-10-25.md", "Q3_PLAN.md", "CRITIC_r38f.md", "CRITIC_r38g.md", "RESULT.md"):
         cp(os.path.join(WAVE, rel), "docs/" + rel)
-    cp(os.path.join(WAVE, "pkg_f", "docker_report_wsl_sha256-r38.json"), "docs/docker_report_sha256-r38.json")
+    cp(os.path.join(WAVE, "pkg_g", "docker_report_wsl_sha256-r38.json"), "docs/docker_report_sha256-r38.json")
+    cp(os.path.join(WAVE, "pkg_f", "docker_report_wsl_sha256-r38.json"), "docs/docker_report_r38f_sha256-r38.json")
+    for f in ("offline_bindings.json", "dependencies.json", "submission-note.md", "tokens.json"): cp(os.path.join(WAVE, "pkg_g", f), "docs/" + f)
+    cp(os.path.join(WAVE, "pkg_g", "work", "identity.json"), "docs/identity.json")
+    for sub in ("replay_final", "replay"):
+        for f in sorted(os.listdir(os.path.join(WAVE, "pkg_g", sub))):
+            if f.endswith(".json"): cp(os.path.join(WAVE, "pkg_g", sub, f), "runs/" + sub + "/" + f)
+    for f in sorted(os.listdir(os.path.join(WAVE, "pkg_g", "work"))):
+        if f.startswith("final_out_") and f.endswith(".json"): cp(os.path.join(WAVE, "pkg_g", "work", f), "runs/organizer_outputs/" + f)
     for sub in ("runs/eval", "runs/gwin", "runs/eval_h", "runs/gwin_h", "runs/longcheck"):
         for f in sorted(os.listdir(os.path.join(WAVE, sub))):
             if f.endswith(".json"): cp(os.path.join(WAVE, sub, f), sub + "/" + f)
@@ -68,8 +81,9 @@ def snapshot():
         b = open(os.path.join(WAVE, "tools", f), "rb").read(); t = b.decode("utf8"); used = []
         for a, r in SUBS:
             if a in t: t = t.replace(a, r); used.append([a.split("/")[0] + "/...", r])
-        dst = os.path.join(IN, "tools", f); os.makedirs(os.path.dirname(dst), exist_ok=True); open(dst, "w", encoding="utf8", newline="\n").write(t)
-        neut[f] = {"original_sha256": sha(b), "retained_sha256": sha(t.encode()), "substitutions": [r for _, r in used]}
+        f2 = f.replace("../pkg_g/tools/", "r38g/")
+        dst = os.path.join(IN, "tools", f2); os.makedirs(os.path.dirname(dst), exist_ok=True); open(dst, "w", encoding="utf8", newline="\n").write(t)
+        neut[f2] = {"original_sha256": sha(b), "retained_sha256": sha(t.encode()), "substitutions": [r for _, r in used]}
     open(os.path.join(IN, "tools", "NEUTRALIZED.json"), "w", newline="\n").write(json.dumps(neut, indent=1, sort_keys=True) + "\n")
     rows = [json.loads(l) for l in open(os.path.join(WAVE, "ledger", "levers.jsonl"), encoding="utf8") if l.strip()]
     out = []
@@ -118,7 +132,7 @@ def main():
     for r in [x for x in rels if x.startswith("package/")]:
         seq += 1; data = read(r)
         pk.append(B.record(seq, "package-file/1", {"name": r, "bytes": len(data), "sha256": sha(data)}, blobs[r], "pkg:" + r))
-    B.ledger("r38f-package", "the r38f candidate package: claim, proof, manifests, the program and the deep-rate data program", pk); ledgers.append("r38f-package")
+    B.ledger("r38g-package", "the r38g candidate package: claim, proof, manifests, the program and the two evidence programs", pk); ledgers.append("r38g-package")
     for sub, name, desc in (("runs/eval_h", "r38-holdout-eval-windows", "the 24 pre-declared HOLDOUT evaluation windows (the claim's cost and yield data)"),
                             ("runs/gwin_h", "r38-holdout-gf7-windows", "the 48 pre-declared HOLDOUT G/F7 windows"),
                             ("runs/f7g_long", "r38-f7g-long-windows", "the 144 pre-declared F7G-LONG windows (pooled with the 72 holdout windows for the charged G and F7 bounds)"),
@@ -162,11 +176,12 @@ def main():
         if r.startswith("package/"): continue
         seq += 1; data = read(r)
         fks.append(B.record(seq, "package-file/1", {"name": r, "bytes": len(data), "sha256": sha(data)}, blobs[r]))
-    B.ledger(TAG + "-files", "declarations, the registered deep-rate plan, critic review, result, organizer Docker report, window and seed JSONs, tools, lever evidence", fks); ledgers.append(TAG + "-files")
-    tok = json.load(open(os.path.join(WAVE, "pkg_f", "tokens.json")))
+    B.ledger(TAG + "-files", "declarations, the registered deep-rate plan, critic reviews, result, organizer Docker reports (r38g and r38f), organizer outputs, replay records, offline bindings, identity record, window and seed JSONs, tools, lever evidence", fks); ledgers.append(TAG + "-files")
+    tok = json.load(open(os.path.join(WAVE, "pkg_g", "tokens.json")))
     root = B.root(ledgers + checks, {"snapshot_files": len(rels), "board": "mooselumph/hashsmash/sha256-r38-exploratory",
                                      "claim_time_log2": float(tok["TIME_CHARGED"]), "claim_memory_log2_bytes": float(tok["MEM_LOG2"]),
-                                     "claim_score": float(tok["SCORE"]), "q3r_log2_charged": float(tok["Q3R"]), "leader": "newjordan 51613d1c 90.7352"})
+                                     "claim_score": float(tok["SCORE"]), "q3r_log2_charged": float(tok["Q3R"]), "q3r_log2_measured_corroborating": float(tok["Q3RM"]), "f7_charged": float(tok["F7CH"]),
+                                     "offline_root": tok["OFFLINE_ROOT"], "leader": "newjordan 51613d1c 90.7352"})
     B.write(OUT, ["", f"Files in snapshot: {len(rels)}", f"Ledgers: {', '.join(ledgers)}", "",
                   "Counts and the lever tally are recomputed by verify_bundle.py from the bundle alone.",
                   "The package files re-hash to the FREEZE.md values of the lane."])

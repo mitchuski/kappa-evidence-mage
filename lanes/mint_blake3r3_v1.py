@@ -5,6 +5,7 @@ Reads ONLY input/blake3r3_v1/ (SHA256SUMS.txt checked; lever evidence hash-check
 No submission: this bundle records why the lane was parked on 2026-10-13.
 """
 from __future__ import annotations
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # repository root
 
 import hashlib
 import json
@@ -12,7 +13,7 @@ import os
 
 from bundle import Bundle
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 IN = os.path.join(HERE, "input", "blake3r3_v1")
 OUT = os.path.join(HERE, "out", "blake3r3_v1")
 ASSERTER = "unsigned:blake3r3_mage"

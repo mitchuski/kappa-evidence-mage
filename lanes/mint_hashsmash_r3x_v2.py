@@ -5,6 +5,7 @@ mint_hashsmash_r3x.py; the gate-count record carries the witness ledger (w_* fie
 circuit operations and not = the AND-NOT pairs' operations so hashsmash/gate-sum/1 recomputes it.
 """
 from __future__ import annotations
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # repository root
 
 import hashlib
 import json
@@ -13,9 +14,9 @@ import re
 
 from bundle import Bundle
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-IN = os.path.join(HERE, "input", "r3x_v3")
-OUT = os.path.join(HERE, "out", "r3x_v3")
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+IN = os.path.join(HERE, "input", "r3x_v2")
+OUT = os.path.join(HERE, "out", "r3x_v2")
 ASSERTER = "unsigned:hashsmash_mage"
 
 
@@ -39,7 +40,7 @@ def check_sums():
 
 def main():
     n = check_sums()
-    B = Bundle("hashsmash/sha256-r37+r38/v3", ASSERTER)
+    B = Bundle("hashsmash/sha256-r37+r38/v2", ASSERTER)
     blobs = {}
     for fname in sorted(os.listdir(IN)):
         if fname == "SHA256SUMS.txt":
@@ -70,7 +71,7 @@ def main():
         seq += 1
         ks.append(B.record(seq, "gate-count/1", {
             "R": R, "per_step_gates": circuit, "xor": w["w_xor"], "and": w["w_and"], "or": w["w_or"], "not": 2 * w["w_andnot"],
-            "andnot_pairs": w["w_andnot"], "loads": w["w_loads"], "stores": w["w_stores"], "shifts": w["w_shift"],
+            "andnot_pairs": w["w_andnot"], "loads": w["w_loads"], "stores": w["w_stores"], "transpose": w["w_transpose"],
             "table": w["w_table"], "setup": w["w_setup"], "total_per_batch": w["w_total"], "messages_per_batch": 256,
             "generator": "grouped_search_phys.py counted witness (strict 64-register VM; 0 mismatches vs reference)"},
             blobs["witness_counts.json"]))
@@ -83,23 +84,23 @@ def main():
                                                     "T_below_claim": ok.group(2) == "True",
                                                     "ops_per_batch": w["w_total"], "C": 2728 if R == 38 else 2644},
                            blobs[f"cert_r{R}.txt"]))
-        lk = B.ledger(f"r{R}-evidence-v3", f"sha256-r{R} v2: organizer-executor results, large local runs, witness ledger, certificate", ks)
+        lk = B.ledger(f"r{R}-evidence-v2", f"sha256-r{R} v2: organizer-executor results, large local runs, witness ledger, certificate", ks)
         g = next(B.objects[k][3] for k in ks if B.objects[k][2] == "gate-count/1")
         checks += [f"r{R}-gate-sum", f"r{R}-experiments-completed"]
         B.check(f"r{R}-gate-sum", lk, "hashsmash/gate-sum/1", {"total": g["per_step_gates"], "sum": g["xor"] + g["and"] + g["or"] + g["not"]})
         ex = [B.objects[k][3] for k in ks if B.objects[k][2] == "experiment-result/1"]
         B.check(f"r{R}-experiments-completed", lk, "hashsmash/experiments-completed/1",
                 {"n": len(ex), "completed": sum(1 for e in ex if e["status"] == "completed"), "successes": [e["successes"] for e in ex]})
-        ledgers.append(f"r{R}-evidence-v3")
+        ledgers.append(f"r{R}-evidence-v2")
     fks = []
     for f in sorted(blobs):
         seq += 1
         data = read(f)
         fks.append(B.record(seq, "package-file/1", {"name": f, "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}, blobs[f]))
-    B.ledger("r3x-v3-package-files", "the v2 package files, program, manifest, counts and reports (records with provenance to their blobs)", fks)
-    ledgers.append("r3x-v3-package-files")
-    root = B.root(ledgers + checks, {"revises": {"sha256-r38": "c839d33d", "sha256-r37": "fca38c6d"},
-                                     "previous_root": "sha256:72d76eea7ac7094ed04a28565e6d31fe63124cac99d6e0383858310f402b0ba9",
+    B.ledger("r3x-v2-package-files", "the v2 package files, program, manifest, counts and reports (records with provenance to their blobs)", fks)
+    ledgers.append("r3x-v2-package-files")
+    root = B.root(ledgers + checks, {"revises": {"sha256-r38": "875a5083", "sha256-r37": "abaa09ae"},
+                                     "previous_root": "sha256:d467e8f7c0d2df1b91c8c179eeab1909ba108df8f1f0787702c1880b8de7145d",
                                      "snapshot_files": n})
     B.write(OUT, ["", f"Files in snapshot: {n}", f"Ledgers: {', '.join(ledgers)}", "",
                   "Records are recomputed by verify_bundle.py from the bundle alone (gate sums, experiment tallies).",

@@ -1,7 +1,7 @@
 """bundle.py - shared minting helper: objects, blobs, typed edges, run root, bundle on disk.
 
 Lane adapters (mint_*.py) call this; verify_bundle.py reads what it writes. Schemas are in
-SCHEMA.md. Every kappa is labelled kappa.STATUS until P1.
+SCHEMA.md. Every root carries the status label kappa.STATUS.
 """
 from __future__ import annotations
 

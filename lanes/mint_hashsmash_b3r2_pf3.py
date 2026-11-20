@@ -6,6 +6,7 @@ the exact Lemma PF enumeration, the package self-test, the organizer's determini
 package file as a record with provenance to its blob.
 """
 from __future__ import annotations
+import os as _os, sys as _sys; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))  # repository root
 
 import hashlib
 import json
@@ -15,9 +16,9 @@ import re
 
 from bundle import Bundle
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-IN = os.path.join(HERE, "input", "b3r2_pf2c")
-OUT = os.path.join(HERE, "out", "b3r2_pf2c")
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+IN = os.path.join(HERE, "input", "b3r2_pf3")
+OUT = os.path.join(HERE, "out", "b3r2_pf3")
 ASSERTER = "unsigned:hashsmash_mage"
 
 
@@ -88,7 +89,7 @@ def main():
     seq += 1
     ks.append(B.record(seq, "certificate/1", {
         "N_machine_units": str(N), "units_per_compression": 430, "log2_T": f"{lt:.12f}", "claim": f"{claim}",
-        "claim_is_log2_rounded_up_4dp": math.ceil(lt * 10 ** 4) / 10 ** 4 == claim, "base_entry": "9638e58 (0xshikhar, 57.6134)"},
+        "claim_is_log2_rounded_up_4dp": math.ceil(lt * 10 ** 4) / 10 ** 4 == claim, "base_entry": "b026078f (mitchuski, 57.4702) on 9638e58 (0xshikhar, 57.6134)"},
         blobs["frontline.py"]))
     lk = B.ledger("b3r2-prefilter-evidence", "blake3-r2 Y9 prefilter: organizer-executor result, measured premise run, Lemma PF, "
                   "self-test, organizer check, claim arithmetic", ks)
@@ -104,7 +105,7 @@ def main():
     root = B.root(["b3r2-prefilter-evidence", "b3r2-prefilter-files", "b3r2-experiments-completed"],
                   {"track": "blake3-r2-exploratory", "claim": str(claim),
                    "builds_on": {"9638e58": "0xshikhar", "b6a7681": "Th0rgal", "4348a26": "Jbenisek", "070a02b": "promoted crown"},
-                   "snapshot_files": n, "revises": "sha256:1be1a0004bfaf7823d5af441c82a2b1020b5066d64daf0bea2e7a773bbb7f485", "revision": "text: W charge of a kept word (75), W_CTX in claim, citations, Section 11 amendment"})
+                   "snapshot_files": n, "revises": "sha256:862252facb93a83b81f4a065c738c1f293241d069fce35a24a65ab6bf4c88c08", "revision": "word test charged only to kept words (52 per word, 23 per kept word); claim 57.4377; previous entry b026078f plausible_not_refuted"})
     B.write(OUT, ["", f"Files in snapshot: {n}", "Ledgers: b3r2-prefilter-evidence, b3r2-prefilter-files", "",
                   "verify_bundle.py recomputes the experiment tally from the bundle alone.",
                   "The organizer report is the Docker executor's own JSON; the 200,000-context run is ours (not organizer evidence)."])
