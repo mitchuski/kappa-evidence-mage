@@ -312,5 +312,6 @@ axes, the minters and the verifiers are this repository's own work.
 
 ## Licence
 
-Code is MIT OR Apache-2.0 ([`LICENSE.md`](LICENSE.md), [`LICENSE-APACHE`](LICENSE-APACHE)).
+Code is MIT OR Apache-2.0 ([`LICENSE-MIT`](LICENSE-MIT), [`LICENSE-APACHE`](LICENSE-APACHE)); the split is set out in
+[`LICENSING.md`](LICENSING.md).
 Documents are CC BY 4.0. Upstream material keeps its own licence ([`NOTICE.md`](NOTICE.md)).

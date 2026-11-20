@@ -48,4 +48,4 @@ change is a breaking one: say so in the pull request and explain why.
 ## Licence of contributions
 
 By contributing you agree that your code is offered under MIT OR Apache-2.0 and your
-documentation under CC BY 4.0, as described in `LICENSE.md`.
+documentation under CC BY 4.0, as described in `LICENSING.md`.

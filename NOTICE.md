@@ -2,7 +2,7 @@
 
 This repository vendors no third-party source code. It re-implements published encoding
 rules, copies one data file, and tests against or builds with upstream code that it fetches
-or loads by path. Each upstream keeps its own licence; ours (`LICENSE.md`) covers only the
+or loads by path. Each upstream keeps its own licence; ours (`LICENSING.md`) covers only the
 work written here.
 
 | upstream | how it is used here | upstream licence |
@@ -15,5 +15,5 @@ work written here.
 
 The modifications described in this repository (the dual BLAKE3 and Poseidon label axes,
 the record/check/run-root shapes in `SCHEMA.md`, the minters and verifiers) are this
-repository's own work under `LICENSE.md`. They extend the kappa-registry model. They do not
+repository's own work under `LICENSING.md`. They extend the kappa-registry model. They do not
 patch upstream code.
