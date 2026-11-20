@@ -259,6 +259,9 @@ bundles are published with the work they seal.
   published with the evidence bundle that seals their audit.
 - [poc_mage](https://github.com/mitchuski/poc_mage): a standards contribution with every
   claim checked against pinned sources and sealed in a bundle.
+- [scroll-thread-check](https://github.com/mitchuski/scroll-thread-check): the structural
+  rules of a sealed bundle, stated one at a time with six of them proved in Lean, and the
+  rules behind the [Prism](https://prism.mages.city), which reads any published scroll.
 - [mages.city](https://mages.city) scrolls and the
   [agentprivacy.org record](https://agentprivacy.org/harness/record/): pages written as the
   hashes of a body of work, each one checkable, showing the chain of roots behind it.
